@@ -20,7 +20,7 @@ export default function OTPScreen() {
       inputs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every((d) => d !== '') && index === 5) {
+    if ((newOtp.every((d) => d !== ''))) {
       const code = newOtp.join('');
       if (code === CORRECT_OTP) {
         router.push('/(auth)/pin');
