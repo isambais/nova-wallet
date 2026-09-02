@@ -4,20 +4,20 @@ import { useAuthStore } from '../src/store/useAuthStore';
 import { useRouter } from 'expo-router';
 
 export default function Index() {
-    const router = useRouter ();
-    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-    useEffect (() => {
-        if (isAuthenticated) {
-            router.replace('/screen/home');
-        }else {
-            router.replace('/(auth)/phone');
-        }
-    },[isAuthenticated]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/(tabs)/home');
+    } else {
+      router.replace('/(auth)/phone');
+    }
+  }, [isAuthenticated]);
 
-    return (
-        <View className='flex-1 items-center justify-center bg-white'>
-            <ActivityIndicator size="large" color="#6C63FF" />
-        </View>
-    );
+  return (
+    <View className="flex-1 items-center justify-center bg-white">
+      <ActivityIndicator size="large" color="#6C63FF" />
+    </View>
+  );
 }
