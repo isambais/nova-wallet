@@ -3,5 +3,123 @@
   "login": "تسجيل الدخول",
   "balance": "الرصيد",
   "transactions": "المعاملات",
-  "settings": "الإعدادات"
+  "settings": "الإعدادات",
+
+  "language": {
+    "title": "اختر اللغة",
+    "subtitle": "اختر لغة للمتابعة",
+    "tr": "Türkçe",
+    "en": "English",
+    "ar": "العربية",
+    "continue": "متابعة"
+  },
+
+  "auth": {
+    "welcome": {
+      "tagline": "محفظتك الرقمية الآمنة",
+      "login": "تسجيل الدخول",
+      "register": "إنشاء حساب",
+      "with_phone": "المتابعة برقم الهاتف",
+      "with_email": "المتابعة بالبريد الإلكتروني",
+      "with_google": "المتابعة عبر Google",
+      "or": "أو",
+      "terms": "بالمتابعة، فإنك توافق على شروط الخدمة وسياسة الخصوصية."
+    },
+    "phone": {
+      "title": "رقم هاتفك",
+      "subtitle": "سنرسل إليك رمز التحقق",
+      "placeholder": "XXX XXX XXXX",
+      "prefix": "+966",
+      "continue": "متابعة",
+      "terms": "بالمتابعة، فإنك توافق على شروط الخدمة وسياسة الخصوصية."
+    },
+    "otp": {
+      "title": "أدخل الرمز",
+      "subtitle": "أدخل الرمز المكوّن من 6 أرقام المرسل إلى {{phone}}",
+      "resend": "إعادة إرسال الرمز",
+      "resend_in": "إعادة الإرسال خلال {{seconds}} ثانية",
+      "demo_hint": "رمز تجريبي: 123456",
+      "verify": "تحقق"
+    },
+    "pin": {
+      "title": "إنشاء رمز PIN",
+      "subtitle": "حدد رمز PIN مكوّناً من 6 أرقام لتأمين حسابك",
+      "confirm_title": "تأكيد رمز PIN",
+      "confirm_subtitle": "أعد إدخال رمز PIN للتأكيد",
+      "error_mismatch": "رمزا PIN غير متطابقَين. حاول مجددًا.",
+      "error_weak": "اختر رمز PIN أقوى (تجنب الأرقام المتتالية)",
+      "success": "تم إنشاء رمز PIN بنجاح!"
+    }
+  },
+
+  "home": {
+    "greeting_morning": "صباح الخير",
+    "greeting_afternoon": "مساء الخير",
+    "greeting_evening": "مساء النور",
+    "total_balance": "إجمالي الرصيد",
+    "card_number": "رقم البطاقة",
+    "quick_actions": "الإجراءات السريعة",
+    "send": "إرسال",
+    "receive": "استقبال",
+    "topup": "شحن",
+    "qr_pay": "QR دفع",
+    "recent_transactions": "المعاملات الأخيرة",
+    "see_all": "عرض الكل",
+    "notifications": "الإشعارات",
+    "no_transactions": "لا توجد معاملات بعد"
+  },
+
+  "tabs": {
+    "home": "الرئيسية",
+    "cards": "بطاقاتي",
+    "transactions": "المعاملات",
+    "profile": "الملف الشخصي"
+  },
+
+  "cards": {
+    "title": "بطاقاتي",
+    "coming_soon": "قريباً 🚀",
+    "add_card": "إضافة بطاقة",
+    "virtual": "بطاقة افتراضية",
+    "physical": "بطاقة مادية"
+  },
+
+  "profile": {
+    "title": "الملف الشخصي",
+    "coming_soon": "قريباً 🚀",
+    "edit": "تعديل",
+    "logout": "تسجيل الخروج",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "currency": "العملة",
+    "notifications": "الإشعارات",
+    "support": "الدعم",
+    "about": "حول"
+  },
+
+  "currency": {
+    "title": "اختر العملة",
+    "TRY": "الليرة التركية",
+    "USD": "الدولار الأمريكي",
+    "EUR": "اليورو"
+  },
+
+  "errors": {
+    "required": "هذا الحقل مطلوب",
+    "phone_invalid": "أدخل رقم هاتف صحيح",
+    "otp_invalid": "رمز غير صحيح. حاول مجددًا.",
+    "network": "خطأ في الاتصال. يرجى المحاولة مجددًا.",
+    "generic": "حدث خطأ ما. يرجى المحاولة مجددًا."
+  },
+
+  "common": {
+    "continue": "متابعة",
+    "back": "رجوع",
+    "done": "تم",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "loading": "جارٍ التحميل...",
+    "retry": "إعادة المحاولة",
+    "close": "إغلاق"
+  }
 }
