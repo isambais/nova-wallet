@@ -1,81 +1,93 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/useAuthStore';
+import { colors } from '../../src/theme/colors';
+import { Keypad } from '../../src/components/ui/Keypad';
 
-const KEYS = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+const PIN_LENGTH = 4;
 
-export default function PINScreen() {
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState('');
+export default function PinScreen() {
   const router = useRouter();
-  const { setUser, setPin: savePin } = useAuthStore();
+  const setPin = useAuthStore((s) => s.setPin);
+  const [pin, setLocalPin] = useState<string[]>([]);
 
-  const handleKey = (key: string) => {
-    if (key === '⌫') {
-      setPin((p) => p.slice(0, -1));
-      return;
+  function handlePress(key: string) {
+    if (pin.length >= PIN_LENGTH) return;
+    const next = [...pin, key];
+    setLocalPin(next);
+
+    if (next.length === PIN_LENGTH) {
+      setPin(next.join(''));
+      router.replace('/(tabs)/home');
     }
-    if (key === '') return;
+  }
 
-    const newPin = pin + key;
-    setPin(newPin);
-
-    if (newPin.length === 4) {
-      if (newPin === '1234') {
-        savePin(newPin);
-        setUser({
-          id: '1',
-          name: 'Isam Bais',
-          phone: '+90 555 123 4567',
-          language: 'tr',
-          currency: 'TRY',
-          balance: 24750.50,
-        });
-        router.replace('/');
-      } else {
-        setError('Hatalı PIN. Demo PIN: 1234');
-        setPin('');
-      }
-    }
-  };
+  function handleDelete() {
+    setLocalPin((p) => p.slice(0, -1));
+  }
 
   return (
-    <View className="flex-1 bg-white px-6 pt-20">
-      <Text className="text-3xl font-bold text-gray-900 mb-2">PIN Oluştur</Text>
-      <Text className="text-gray-500 mb-12">4 haneli güvenlik kodunuzu girin</Text>
+    <SafeAreaView style={s.safe}>
+      <View style={s.body}>
 
-      {/* PIN dots */}
-      <View className="flex-row justify-center gap-4 mb-10">
-        {[0,1,2,3].map((i) => (
-          <View
-            key={i}
-            className={`w-4 h-4 rounded-full ${i < pin.length ? 'bg-purple-600' : 'bg-gray-200'}`}
-          />
-        ))}
+        {/* Logo */}
+        <View style={s.logoWrap}>
+          <Text style={s.logoTxt}>N</Text>
+        </View>
+
+        <Text style={s.title}>PIN Oluştur</Text>
+        <Text style={s.sub}>
+          Hesabını korumak için{'\n'}4 haneli bir PIN belirle.
+        </Text>
+
+        {/* PIN dots */}
+        <View style={s.dots}>
+          {Array.from({ length: PIN_LENGTH }).map((_, i) => (
+            <View
+              key={i}
+              style={[
+                s.dot,
+                i < pin.length && s.dotFilled,
+                i === pin.length && s.dotActive,
+              ]}
+            />
+          ))}
+        </View>
+
       </View>
 
-      {error ? (
-        <Text className="text-red-500 text-sm text-center mb-4">{error}</Text>
-      ) : null}
-
-      {/* Keypad */}
-      <View className="flex-row flex-wrap justify-center gap-4">
-        {KEYS.map((key, idx) => (
-          <TouchableOpacity
-            key={idx}
-            onPress={() => handleKey(key)}
-            className={`w-20 h-20 rounded-full items-center justify-center ${key === '' ? 'opacity-0' : 'bg-gray-100'}`}
-            disabled={key === ''}
-          >
-            <Text className="text-2xl font-semibold text-gray-800">{key}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text className="text-center text-gray-400 text-sm mt-8">
-        Demo PIN: <Text className="font-bold text-purple-600">1234</Text>
-      </Text>
-    </View>
+      <Keypad onPress={handlePress} onDelete={handleDelete} />
+    </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  safe:      { flex: 1, backgroundColor: colors.bg },
+  body:      { flex: 1, paddingHorizontal: 24, paddingTop: 48, alignItems: 'center' },
+  logoWrap:  {
+    width: 56, height: 56, borderRadius: 18,
+    backgroundColor: colors.purple,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 20,
+    shadowColor: colors.purple, shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4, shadowRadius: 20, elevation: 8,
+  },
+  logoTxt:   { color: '#fff', fontSize: 26, fontWeight: '800' },
+  title:     { color: colors.text1, fontSize: 24, fontWeight: '700', marginBottom: 10, letterSpacing: -0.5 },
+  sub:       { color: colors.text2, fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 40 },
+  dots:      { flexDirection: 'row', gap: 16, marginBottom: 20 },
+  dot:       {
+    width: 14, height: 14, borderRadius: 7,
+    borderWidth: 1.5, borderColor: colors.surface3,
+    backgroundColor: 'transparent',
+  },
+  dotFilled: { backgroundColor: colors.purple, borderColor: colors.purple },
+  dotActive: {
+    borderColor: colors.purpleLight,
+    shadowColor: colors.purple,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5, shadowRadius: 8, elevation: 4,
+  },
+});

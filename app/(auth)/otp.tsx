@@ -1,77 +1,181 @@
-import { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { useState } from 'react';
+import {
+  View, Text, TouchableOpacity, StyleSheet, StatusBar,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '../../src/store/useAuthStore';
+import { OTPBox } from '../../src/components/ui/OTPBox';
+import { Keypad } from '../../src/components/ui/Keypad';
 
-const CORRECT_OTP = '123456';
+// Artifact'taki mavi accent palette
+const A = {
+  bg:          '#08091C',
+  accent:      '#6B8CFF',
+  accentDim:   'rgba(107,140,255,0.32)',
+  accentFaint: 'rgba(107,140,255,0.09)',
+  btnFrom:     '#4E5EE8',
+  logoBg:      '#0E1640',
+  logoBorder:  'rgba(100,130,255,0.22)',
+  surface:     'rgba(255,255,255,0.055)',
+  border:      'rgba(255,255,255,0.09)',
+  text1:       '#FFFFFF',
+  text2:       'rgba(255,255,255,0.4)',
+  text3:       'rgba(255,255,255,0.26)',
+  suggColor:   'rgba(255,255,255,0.5)',
+};
+
+const OTP_LENGTH = 4;
 
 export default function OTPScreen() {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [error, setError] = useState('');
-  const inputs = useRef<(TextInput | null)[]>([]);
   const router = useRouter();
+  const setUser = useAuthStore((s) => s.setUser);
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
 
-  const handleChange = (text: string, index: number) => {
-    const newOtp = [...otp];
-    newOtp[index] = text;
-    setOtp(newOtp);
-    setError('');
+  const activeIndex = otp.findIndex((d) => d === '');
+  const filledCount = otp.filter((d) => d !== '').length;
+  const isComplete  = filledCount === OTP_LENGTH;
 
-    if (text && index < 5) {
-      inputs.current[index + 1]?.focus();
-    }
+  function handlePress(key: string) {
+    const idx = otp.findIndex((d) => d === '');
+    if (idx === -1) return;
+    const next = [...otp];
+    next[idx] = key;
+    setOtp(next);
+  }
 
-    if ((newOtp.every((d) => d !== ''))) {
-      const code = newOtp.join('');
-      if (code === CORRECT_OTP) {
-        router.push('/(auth)/pin');
-      } else {
-        setError('Hatalı kod. Demo kodu: 123456');
-        setOtp(['', '', '', '', '', '']);
-        inputs.current[0]?.focus();
-      }
-    }
-  };
+  function handleDelete() {
+    const last = otp.map((d, i) => (d !== '' ? i : -1)).filter((i) => i !== -1).pop();
+    if (last === undefined) return;
+    const next = [...otp];
+    next[last] = '';
+    setOtp(next);
+  }
+
+  function handleVerify() {
+    if (!isComplete) return;
+    setUser({
+      id: '1',
+      name: 'Isam Bais',
+      phone: '+90 552 004 04 40',
+      language: 'tr',
+      currency: 'TRY',
+      balance: 0,
+    });
+    router.replace('/(tabs)/home');
+  }
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View className="flex-1 px-6 pt-20">
-        <TouchableOpacity onPress={() => router.back()} className="mb-8">
-          <Text className="text-purple-600 text-base">← Geri</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={s.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={A.bg} />
 
-        <Text className="text-3xl font-bold text-gray-900 mb-2">
-          Doğrulama Kodu
-        </Text>
-        <Text className="text-gray-500 mb-10">
-          SMS ile gönderilen 6 haneli kodu girin
-        </Text>
+      {/* Geri */}
+      <TouchableOpacity style={s.backWrap} onPress={() => router.back()}>
+        <View style={s.backBtn}>
+          <Text style={s.backArrow}>{'←'}</Text>
+        </View>
+      </TouchableOpacity>
 
-        <View className="flex-row justify-between mb-6">
-          {otp.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => { inputs.current[index] = ref; }}
-              className="w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-xl font-bold text-gray-900"
-              maxLength={1}
-              keyboardType="number-pad"
-              value={digit}
-              onChangeText={(text) => handleChange(text, index)}
-              style={{ borderColor: digit ? '#6C63FF' : '#E5E7EB' }}
-            />
-          ))}
+      {/* İçerik */}
+      <View style={s.body}>
+        <View style={s.logoBadge}>
+          <Text style={s.logoLetter}>N</Text>
         </View>
 
-        {error ? (
-          <Text className="text-red-500 text-sm text-center mb-4">{error}</Text>
-        ) : null}
+        <Text style={s.title}>Enter OTP</Text>
+        <Text style={s.sub}>A 4-letter code has been sent to</Text>
+        <Text style={s.subAccent}>+90 552 004 04 40</Text>
 
-        <Text className="text-center text-gray-400 text-sm">
-          Demo kodu: <Text className="font-bold text-purple-600">123456</Text>
+        <OTPBox
+          length={OTP_LENGTH}
+          value={otp}
+          activeIndex={activeIndex === -1 ? OTP_LENGTH : activeIndex}
+        />
+
+        <Text style={s.resend}>
+          Resend code in <Text style={s.resendAccent}>34s</Text>
         </Text>
+
+        <TouchableOpacity
+          style={[s.btn, !isComplete && s.btnDisabled]}
+          onPress={handleVerify}
+          disabled={!isComplete}
+          activeOpacity={0.85}
+        >
+          <Text style={s.btnLabel}>Continue</Text>
+        </TouchableOpacity>
+
+        <View style={s.fromWrap}>
+          <Text style={s.fromLabel}>From Messages</Text>
+          <Text style={s.fromCode}>1 2 3  4 5 6</Text>
+        </View>
       </View>
-    </KeyboardAvoidingView>
+
+      {/* Klavye */}
+      <Keypad onPress={handlePress} onDelete={handleDelete} />
+    </SafeAreaView>
   );
 }
+
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: A.bg },
+
+  backWrap: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 0 },
+  backBtn: {
+    width: 34, height: 34, borderRadius: 17,
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  backArrow: { color: 'rgba(255,255,255,0.72)', fontSize: 16, marginTop: -1 },
+
+  body: { flex: 1, alignItems: 'center', paddingHorizontal: 22, paddingTop: 10 },
+
+  logoBadge: {
+    width: 46, height: 46, borderRadius: 14,
+    backgroundColor: A.logoBg,
+    borderWidth: 1, borderColor: A.logoBorder,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.55, shadowRadius: 10, elevation: 6,
+  },
+  logoLetter: { color: A.text1, fontSize: 20, fontWeight: '800' },
+
+  title: {
+    color: A.text1, fontSize: 20, fontWeight: '800',
+    textAlign: 'center', marginBottom: 6, letterSpacing: -0.35,
+  },
+  sub: {
+    color: A.text2, fontSize: 12, textAlign: 'center',
+    lineHeight: 18, marginBottom: 2,
+  },
+  subAccent: {
+    color: A.accent, fontSize: 12, fontWeight: '600',
+    textAlign: 'center', marginBottom: 22,
+  },
+
+  resend: { color: 'rgba(255,255,255,0.33)', fontSize: 11.5, textAlign: 'center', marginTop: 14, marginBottom: 16 },
+  resendAccent: { color: A.accent, fontWeight: '700' },
+
+  btn: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 100,
+    backgroundColor: A.btnFrom,
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: A.btnFrom,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.44,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  btnDisabled: { opacity: 0.35, shadowOpacity: 0 },
+  btnLabel: { color: A.text1, fontSize: 14.5, fontWeight: '700' },
+
+  fromWrap: { alignItems: 'center', gap: 3 },
+  fromLabel: { color: A.text3, fontSize: 10, fontWeight: '500' },
+  fromCode: { color: A.suggColor, fontSize: 13, fontWeight: '600', letterSpacing: 1.5 },
+});
