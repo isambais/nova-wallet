@@ -1,0 +1,115 @@
+{
+  "welcome": "Welcome",
+  "login": "Login",
+  "balance": "Balance",
+  "transactions": "Transactions",
+  "settings": "Settings",
+
+  "language": {
+    "title": "Choose Language",
+    "subtitle": "Select a language to continue",
+    "tr": "Türkçe",
+    "en": "English",
+    "ar": "العربية",
+    "continue": "Continue"
+  },
+
+  "auth": {
+    "phone": {
+      "title": "Your Phone Number",
+      "subtitle": "We'll send you a verification code",
+      "placeholder": "XXX XXX XXXX",
+      "prefix": "+1",
+      "continue": "Continue",
+      "terms": "By continuing, you agree to our Terms of Service and Privacy Policy."
+    },
+    "otp": {
+      "title": "Enter the Code",
+      "subtitle": "Enter the 6-digit code sent to {{phone}}",
+      "resend": "Resend Code",
+      "resend_in": "Resend in {{seconds}} seconds",
+      "demo_hint": "Demo code: 123456",
+      "verify": "Verify"
+    },
+    "pin": {
+      "title": "Create Your PIN",
+      "subtitle": "Set a 6-digit PIN to secure your account",
+      "confirm_title": "Confirm Your PIN",
+      "confirm_subtitle": "Enter your PIN again for security",
+      "error_mismatch": "PINs don't match. Please try again.",
+      "error_weak": "Choose a stronger PIN (avoid sequential numbers)",
+      "success": "PIN created successfully!"
+    }
+  },
+
+  "home": {
+    "greeting_morning": "Good Morning",
+    "greeting_afternoon": "Good Afternoon",
+    "greeting_evening": "Good Evening",
+    "total_balance": "Total Balance",
+    "card_number": "Card No",
+    "quick_actions": "Quick Actions",
+    "send": "Send",
+    "receive": "Receive",
+    "topup": "Top Up",
+    "qr_pay": "QR Pay",
+    "recent_transactions": "Recent Transactions",
+    "see_all": "See All",
+    "notifications": "Notifications",
+    "no_transactions": "No transactions yet"
+  },
+
+  "tabs": {
+    "home": "Home",
+    "cards": "My Cards",
+    "transactions": "Transactions",
+    "profile": "Profile"
+  },
+
+  "cards": {
+    "title": "My Cards",
+    "coming_soon": "Coming soon 🚀",
+    "add_card": "Add Card",
+    "virtual": "Virtual Card",
+    "physical": "Physical Card"
+  },
+
+  "profile": {
+    "title": "Profile",
+    "coming_soon": "Coming soon 🚀",
+    "edit": "Edit",
+    "logout": "Log Out",
+    "settings": "Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "notifications": "Notifications",
+    "support": "Support",
+    "about": "About"
+  },
+
+  "currency": {
+    "title": "Choose Currency",
+    "TRY": "Turkish Lira",
+    "USD": "US Dollar",
+    "EUR": "Euro"
+  },
+
+  "errors": {
+    "required": "This field is required",
+    "phone_invalid": "Please enter a valid phone number",
+    "otp_invalid": "Invalid code. Please try again.",
+    "network": "Connection error. Please try again.",
+    "generic": "Something went wrong. Please try again."
+  },
+
+  "common": {
+    "continue": "Continue",
+    "back": "Back",
+    "done": "Done",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "retry": "Try Again",
+    "close": "Close"
+  }
+}
