@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet,Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Phone, Mail } from 'lucide-react-native';
+import { Phone, Mail,Globe } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
+import { useSettingsStore } from '../../src/store/useSettingsStore';
+import type { Language } from '../../src/store/useSettingsStore';
 
 type Mode = 'login' | 'register';
 
@@ -12,6 +14,8 @@ export default function AuthWelcomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>('login');
+  const [showLang, setShowLang] = useState(false);
+const { language, setLanguage } = useSettingsStore();
 
   function handlePhone() {
     router.push({ pathname: '/(auth)/phone-input', params: { mode } });
@@ -19,6 +23,14 @@ export default function AuthWelcomeScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
+
+{/* Dil ikonu */}
+
+<View style={s.header}>
+      <TouchableOpacity style={s.langBtn} onPress={() => setShowLang(true)} activeOpacity={0.7}>
+        <Globe size={20} color={colors.text2} strokeWidth={1.8} />
+      </TouchableOpacity>
+    </View>
       {/* Logo + Brand */}
       <View style={s.top}>
         <View style={s.logoWrap}>
@@ -93,11 +105,93 @@ export default function AuthWelcomeScreen() {
 
       {/* Terms */}
       <Text style={s.terms}>{t('auth.welcome.terms')}</Text>
+
+      {/* Dil Seçim Modal */}
+<Modal
+  visible={showLang}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setShowLang(false)}
+>
+  <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => setShowLang(false)}>
+    <View style={s.langMenu}>
+      {(['tr', 'en', 'ar'] as Language[]).map((lang) => (
+        <TouchableOpacity
+          key={lang}
+          style={[s.langItem, language === lang && s.langItemActive]}
+          onPress={() => { setLanguage(lang); setShowLang(false); }}
+          activeOpacity={0.75}
+        >
+          <Text style={s.langFlag}>
+            {lang === 'tr' ? '🇹🇷' : lang === 'en' ? '🇬🇧' : '🇸🇦'}
+          </Text>
+          <Text style={[s.langTxt, language === lang && s.langTxtActive]}>
+            {lang === 'tr' ? 'Türkçe' : lang === 'en' ? 'English' : 'العربية'}
+          </Text>
+          {language === lang && <Text style={s.langCheck}>✓</Text>}
+        </TouchableOpacity>
+      ))}
+    </View>
+  </TouchableOpacity>
+</Modal>
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
+    
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingTop: 8,
+  },
+  langBtn: {
+    padding: 8,
+  },
+overlay: {
+  flex: 1,
+  backgroundColor: colors.overlay,
+  justifyContent: 'flex-start',
+  alignItems: 'flex-end',
+  paddingTop: 80,
+  paddingRight: 24,
+},
+langMenu: {
+  backgroundColor: colors.surface2,
+  borderRadius: 16,
+  borderWidth: 1,
+  borderColor: colors.border,
+  overflow: 'hidden',
+  minWidth: 160,
+},
+langItem: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 14,
+  paddingHorizontal: 16,
+  gap: 10,
+},
+langItemActive: {
+  backgroundColor: colors.surface3,
+},
+langFlag: {
+  fontSize: 18,
+},
+langTxt: {
+  flex: 1,
+  color: colors.text2,
+  fontSize: 14,
+  fontWeight: '500',
+},
+langTxtActive: {
+  color: colors.text1,
+  fontWeight: '600',
+},
+langCheck: {
+  color: colors.purple,
+  fontSize: 14,
+  fontWeight: '700',
+},
   safe: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -106,7 +200,7 @@ const s = StyleSheet.create({
 
   top: {
     alignItems: 'center',
-    paddingTop: 48,
+    paddingTop: 24,
     paddingBottom: 40,
   },
   logoWrap: {
