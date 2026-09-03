@@ -1,0 +1,115 @@
+{
+  "welcome": "Hoş Geldiniz",
+  "login": "Giriş Yap",
+  "balance": "Bakiye",
+  "transactions": "İşlemler",
+  "settings": "Ayarlar",
+
+  "language": {
+    "title": "Dil Seçin",
+    "subtitle": "Devam etmek için bir dil seçin",
+    "tr": "Türkçe",
+    "en": "English",
+    "ar": "العربية",
+    "continue": "Devam Et"
+  },
+
+  "auth": {
+    "phone": {
+      "title": "Telefon Numaranız",
+      "subtitle": "Size doğrulama kodu göndereceğiz",
+      "placeholder": "5XX XXX XX XX",
+      "prefix": "+90",
+      "continue": "Devam Et",
+      "terms": "Devam ederek Kullanım Koşulları ve Gizlilik Politikasını kabul etmiş olursunuz."
+    },
+    "otp": {
+      "title": "Kodu Girin",
+      "subtitle": "{{phone}} numarasına gönderilen 6 haneli kodu girin",
+      "resend": "Kodu Tekrar Gönder",
+      "resend_in": "{{seconds}} saniye sonra tekrar gönder",
+      "demo_hint": "Demo kodu: 123456",
+      "verify": "Doğrula"
+    },
+    "pin": {
+      "title": "PIN Oluşturun",
+      "subtitle": "Hesabınızı korumak için 6 haneli bir PIN belirleyin",
+      "confirm_title": "PIN'i Onaylayın",
+      "confirm_subtitle": "Güvenlik için PIN'inizi tekrar girin",
+      "error_mismatch": "PIN'ler eşleşmiyor. Tekrar deneyin.",
+      "error_weak": "Daha güçlü bir PIN seçin (art arda sayı kullanmayın)",
+      "success": "PIN başarıyla oluşturuldu!"
+    }
+  },
+
+  "home": {
+    "greeting_morning": "Günaydın",
+    "greeting_afternoon": "İyi Öğlenler",
+    "greeting_evening": "İyi Akşamlar",
+    "total_balance": "Toplam Bakiye",
+    "card_number": "Kart No",
+    "quick_actions": "Hızlı İşlemler",
+    "send": "Gönder",
+    "receive": "Al",
+    "topup": "Yükle",
+    "qr_pay": "QR Öde",
+    "recent_transactions": "Son İşlemler",
+    "see_all": "Tümünü Gör",
+    "notifications": "Bildirimler",
+    "no_transactions": "Henüz işlem yok"
+  },
+
+  "tabs": {
+    "home": "Ana Sayfa",
+    "cards": "Kartlarım",
+    "transactions": "İşlemler",
+    "profile": "Profil"
+  },
+
+  "cards": {
+    "title": "Kartlarım",
+    "coming_soon": "Yakında geliyor 🚀",
+    "add_card": "Kart Ekle",
+    "virtual": "Sanal Kart",
+    "physical": "Fiziksel Kart"
+  },
+
+  "profile": {
+    "title": "Profil",
+    "coming_soon": "Yakında geliyor 🚀",
+    "edit": "Düzenle",
+    "logout": "Çıkış Yap",
+    "settings": "Ayarlar",
+    "language": "Dil",
+    "currency": "Para Birimi",
+    "notifications": "Bildirimler",
+    "support": "Destek",
+    "about": "Hakkında"
+  },
+
+  "currency": {
+    "title": "Para Birimi Seçin",
+    "TRY": "Türk Lirası",
+    "USD": "Amerikan Doları",
+    "EUR": "Euro"
+  },
+
+  "errors": {
+    "required": "Bu alan zorunludur",
+    "phone_invalid": "Geçerli bir telefon numarası girin",
+    "otp_invalid": "Geçersiz kod. Tekrar deneyin.",
+    "network": "Bağlantı hatası. Lütfen tekrar deneyin.",
+    "generic": "Bir hata oluştu. Lütfen tekrar deneyin."
+  },
+
+  "common": {
+    "continue": "Devam Et",
+    "back": "Geri",
+    "done": "Tamam",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "loading": "Yükleniyor...",
+    "retry": "Tekrar Dene",
+    "close": "Kapat"
+  }
+}
