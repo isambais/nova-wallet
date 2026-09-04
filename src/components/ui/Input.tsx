@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, forwardRef } from 'react';
 import { TextInput, View, Text, TextInputProps, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 
@@ -8,58 +8,47 @@ interface InputProps extends TextInputProps {
   prefix?: string;
 }
 
-export function Input({ label, error, prefix, style, onFocus, onBlur, ...props }: InputProps) {
-  const rowRef = useRef<View>(null);
+export const Input = forwardRef<TextInput, InputProps>(
+  ({ label, error, prefix, style, onFocus, onBlur, ...props }, ref) => {
+    const [focused, setFocused] = useState(false);
 
-  function handleFocus(e: any) {
-    rowRef.current?.setNativeProps({
-      style: {
-        borderColor: colors.purple,
-        shadowColor: colors.purple,
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 4,
-      },
-    });
-    onFocus?.(e);
-  }
+    function handleFocus(e: any) {
+      setFocused(true);
+      onFocus?.(e);
+    }
 
-  function handleBlur(e: any) {
-    rowRef.current?.setNativeProps({
-      style: {
-        borderColor: colors.surface3,
-        shadowOpacity: 0,
-        elevation: 0,
-      },
-    });
-    onBlur?.(e);
-  }
+    function handleBlur(e: any) {
+      setFocused(false);
+      onBlur?.(e);
+    }
 
-  return (
-    <View style={s.wrap}>
-      {label && <Text style={s.label}>{label}</Text>}
+    return (
+      <View style={s.wrap}>
+        {label && <Text style={s.label}>{label}</Text>}
 
-      <View ref={rowRef} style={[s.row, !!error && s.rowError]}>
-        {prefix && (
-          <>
-            <Text style={s.prefix}>{prefix}</Text>
-            <View style={s.divider} />
-          </>
-        )}
-        <TextInput
-          style={[s.input, style]}
-          placeholderTextColor={colors.text3}
-          selectionColor={colors.purpleLight}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          {...props}
-        />
+        <View style={[s.row, focused && s.rowFocused, !!error && s.rowError]}>
+          {prefix && (
+            <>
+              <Text style={s.prefix}>{prefix}</Text>
+              <View style={s.divider} />
+            </>
+          )}
+          <TextInput
+            ref={ref}
+            style={[s.input, style]}
+            placeholderTextColor={colors.text3}
+            selectionColor={colors.purpleLight}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            {...props}
+          />
+        </View>
+
+        {error && <Text style={s.err}>{error}</Text>}
       </View>
-
-      {error && <Text style={s.err}>{error}</Text>}
-    </View>
-  );
-}
+    );
+  }
+);
 
 const s = StyleSheet.create({
   wrap: { gap: 6 },
@@ -78,6 +67,9 @@ const s = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.surface3,
     paddingHorizontal: 16,
+  },
+  rowFocused: {
+    borderColor: colors.purple,
   },
   rowError: { borderColor: colors.error },
   prefix: {
