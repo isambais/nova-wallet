@@ -1,72 +1,138 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useState, useRef } from 'react';
+import {
+  View, Text, TouchableOpacity, StyleSheet,
+  TextInput, KeyboardAvoidingView, Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { colors } from '../../src/theme/colors';
-import { Keypad } from '../../src/components/ui/Keypad';
 
-const PIN_LENGTH = 4;
+const PIN_LENGTH = 6;
 
 export default function PinScreen() {
   const router = useRouter();
-  const setPin = useAuthStore((s) => s.setPin);
-  const [pin, setLocalPin] = useState<string[]>([]);
+  const { pinMode } = useLocalSearchParams<{ pinMode?: 'create' | 'enter' }>();
+  const { pin: storedPin, setPin } = useAuthStore();
 
-  function handlePress(key: string) {
-    if (pin.length >= PIN_LENGTH) return;
-    const next = [...pin, key];
-    setLocalPin(next);
+  const [step, setStep] = useState<'first' | 'confirm'>('first');
+  const [pin, setLocalPin] = useState('');
+  const [firstPin, setFirstPin] = useState('');
+  const [error, setError] = useState('');
+  const inputRef = useRef<TextInput>(null);
 
-    if (next.length === PIN_LENGTH) {
-      setPin(next.join(''));
-      router.replace('/(tabs)/home');
+  function handleChange(text: string) {
+    const clean = text.replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
+    setLocalPin(clean);
+    setError('');
+    if (clean.length === PIN_LENGTH) {
+      setTimeout(() => handleContinue(clean), 150);
     }
   }
 
-  function handleDelete() {
-    setLocalPin((p) => p.slice(0, -1));
+  function handleContinue(value = pin) {
+    if (value.length < PIN_LENGTH) return;
+
+    if (pinMode === 'enter') {
+      if (value === storedPin) {
+        router.replace('/(tabs)/home');
+      } else {
+        setError('Hatalı PIN. Tekrar dene.');
+        setLocalPin('');
+      }
+      return;
+    }
+
+    // create mode
+    if (step === 'first') {
+      setFirstPin(value);
+      setLocalPin('');
+      setStep('confirm');
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      if (value === firstPin) {
+        setPin(value);
+        router.replace('/(tabs)/home');
+      } else {
+        setError("PIN'ler eşleşmedi. Tekrar dene.");
+        setLocalPin('');
+        setStep('first');
+        setFirstPin('');
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }
+    }
   }
+
+  const title = pinMode === 'enter'
+    ? "PIN'ini gir"
+    : step === 'first' ? 'PIN Oluştur' : "PIN'ini Onayla";
+
+  const subtitle = pinMode === 'enter'
+    ? 'Hesabına erişmek için PIN gir'
+    : step === 'first'
+      ? 'Hesabını korumak için\n6 haneli bir PIN belirle'
+      : "Aynı PIN'i tekrar gir";
 
   return (
     <SafeAreaView style={s.safe}>
-      <View style={s.body}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TextInput
+          ref={inputRef}
+          value={pin}
+          onChangeText={handleChange}
+          inputMode="numeric"
+          maxLength={PIN_LENGTH}
+          style={s.hiddenInput}
+          autoFocus
+          secureTextEntry
+        />
 
-        {/* Logo */}
-        <View style={s.logoWrap}>
-          <Text style={s.logoTxt}>N</Text>
+        <View style={s.body}>
+          <View style={s.logoWrap}>
+            <Text style={s.logoTxt}>N</Text>
+          </View>
+
+          <Text style={s.title}>{title}</Text>
+          <Text style={s.sub}>{subtitle}</Text>
+
+          <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()}>
+            <View style={s.dots}>
+              {Array.from({ length: PIN_LENGTH }).map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    s.dot,
+                    i < pin.length && s.dotFilled,
+                    i === pin.length && s.dotActive,
+                  ]}
+                />
+              ))}
+            </View>
+          </TouchableOpacity>
+
+          {error ? <Text style={s.error}>{error}</Text> : null}
+
+          {pinMode !== 'enter' && step === 'confirm' && (
+            <TouchableOpacity
+              onPress={() => { setStep('first'); setLocalPin(''); setFirstPin(''); }}
+            >
+              <Text style={s.backLink}>← Geri</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
-        <Text style={s.title}>PIN Oluştur</Text>
-        <Text style={s.sub}>
-          Hesabını korumak için{'\n'}4 haneli bir PIN belirle.
-        </Text>
-
-        {/* PIN dots */}
-        <View style={s.dots}>
-          {Array.from({ length: PIN_LENGTH }).map((_, i) => (
-            <View
-              key={i}
-              style={[
-                s.dot,
-                i < pin.length && s.dotFilled,
-                i === pin.length && s.dotActive,
-              ]}
-            />
-          ))}
-        </View>
-
-      </View>
-
-      <Keypad onPress={handlePress} onDelete={handleDelete} />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
-  safe:      { flex: 1, backgroundColor: colors.bg },
-  body:      { flex: 1, paddingHorizontal: 24, paddingTop: 48, alignItems: 'center' },
-  logoWrap:  {
+  safe: { flex: 1, backgroundColor: colors.bg },
+  hiddenInput: { position: 'absolute', opacity: 0, width: 1, height: 1 },
+  body: { flex: 1, paddingHorizontal: 24, paddingTop: 48, alignItems: 'center' },
+  logoWrap: {
     width: 56, height: 56, borderRadius: 18,
     backgroundColor: colors.purple,
     alignItems: 'center', justifyContent: 'center',
@@ -74,11 +140,17 @@ const s = StyleSheet.create({
     shadowColor: colors.purple, shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4, shadowRadius: 20, elevation: 8,
   },
-  logoTxt:   { color: '#fff', fontSize: 26, fontWeight: '800' },
-  title:     { color: colors.text1, fontSize: 24, fontWeight: '700', marginBottom: 10, letterSpacing: -0.5 },
-  sub:       { color: colors.text2, fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 40 },
-  dots:      { flexDirection: 'row', gap: 16, marginBottom: 20 },
-  dot:       {
+  logoTxt: { color: '#fff', fontSize: 26, fontWeight: '800' },
+  title: {
+    color: colors.text1, fontSize: 24, fontWeight: '700',
+    marginBottom: 10, letterSpacing: -0.5,
+  },
+  sub: {
+    color: colors.text2, fontSize: 14,
+    textAlign: 'center', lineHeight: 22, marginBottom: 40,
+  },
+  dots: { flexDirection: 'row', gap: 16, marginBottom: 20 },
+  dot: {
     width: 14, height: 14, borderRadius: 7,
     borderWidth: 1.5, borderColor: colors.surface3,
     backgroundColor: 'transparent',
@@ -90,4 +162,6 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5, shadowRadius: 8, elevation: 4,
   },
+  error: { color: colors.error, fontSize: 13, textAlign: 'center', marginTop: 16 },
+  backLink: { color: colors.text2, fontSize: 13, textAlign: 'center', marginTop: 20 },
 });

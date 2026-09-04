@@ -45,21 +45,26 @@ export default function OTPScreen() {
   }
 
   function handleVerify() {
-    if (!isComplete) return;
-    if (otp !== DEMO_CODE) {
-      setError('Kod hatalı. Demo kod: 123456');
-      return;
-    }
-    setUser({
-      id: '1',
-      name: 'Isam Bais',
-      phone: method === 'phone' ? (target ?? '') : '',
-      language: 'tr',
-      currency: 'TRY',
-      balance: 0,
-    });
+  if (!isComplete) return;
+  if (otp !== DEMO_CODE) {
+    setError('Kod hatalı. Demo kod: 123456');
+    return;
+  }
+  setUser({
+    id: '1',
+    name: 'Isam Bais',
+    phone: method === 'phone' ? (target ?? '') : '',
+    language: 'tr',
+    currency: 'TRY',
+    balance: 0,
+  });
+
+  if (mode === 'register') {
+    router.replace({ pathname: '/(auth)/pin', params: { pinMode: 'create' } });
+  } else {
     router.replace('/(tabs)/home');
   }
+}
 
   const subtitle = method === 'email'
     ? 'E-posta adresinize gönderilen kodu girin'
