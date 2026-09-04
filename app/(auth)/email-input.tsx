@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter,useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { Input } from '../../src/components/ui/Input';
@@ -21,14 +21,19 @@ type EmailForm = z.infer<typeof emailSchema>;
 
 export default function EmailInputScreen() {
   const router = useRouter();
+  const { mode } = useLocalSearchParams<{ mode?: 'login' | 'register' }>();
   const { control, handleSubmit, formState: { errors } } = useForm<EmailForm>({
     resolver: zodResolver(emailSchema),
     defaultValues: { email: '' },
   });
 
 function handleNext(data: EmailForm) {
-    router.push('/(auth)/otp');
-  }
+  router.push({
+    pathname: '/(auth)/otp',
+    params: { mode, method: 'email', target: data.email },
+  });
+}
+
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
       <KeyboardAvoidingView
