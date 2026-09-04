@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Currency = 'TRY' | 'USD' | 'EUR';
 
@@ -20,12 +22,19 @@ type AuthState = {
   logout: () => void;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  pin: null,
-  setUser: (user) => set({ user, isAuthenticated: true }),
-  setPin: (pin) => set({ pin }),
-  logout: () => set({ user: null, isAuthenticated: false, pin: null }),
-}));
-
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      pin: null,
+      setUser: (user) => set({ user, isAuthenticated: true }),
+      setPin: (pin) => set({ pin }),
+      logout: () => set({ user: null, isAuthenticated: false, pin: null }),
+    }),
+    {
+      name: 'nova-auth',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);

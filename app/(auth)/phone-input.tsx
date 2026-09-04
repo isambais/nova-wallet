@@ -30,7 +30,10 @@ export default function PhoneInputScreen() {
 });
 
   function handleNext(data: PhoneForm) {
-  router.push('/(auth)/otp');
+  router.push({
+    pathname: '/(auth)/otp',
+    params: { mode, method: 'phone', target: '+90 ' + data.phone },
+  });
 }
 
   return (
