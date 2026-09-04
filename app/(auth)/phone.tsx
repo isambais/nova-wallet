@@ -21,6 +21,10 @@ const { language, setLanguage } = useSettingsStore();
     router.push({ pathname: '/(auth)/phone-input', params: { mode } });
   }
 
+  function handleEmail() {
+  router.push({ pathname: '/(auth)/email-input', params: { mode } });
+}
+
   return (
     <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
 
@@ -67,6 +71,7 @@ const { language, setLanguage } = useSettingsStore();
       {/* Auth Methods */}
       <View style={s.methods}>
         <TouchableOpacity style={s.methodBtn} onPress={handlePhone} activeOpacity={0.75}>
+            
           <View style={s.methodIcon}>
             <Phone size={20} color={colors.purpleLight} strokeWidth={1.8} />
           </View>
@@ -76,7 +81,7 @@ const { language, setLanguage } = useSettingsStore();
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={s.methodBtn} activeOpacity={0.75}>
+<TouchableOpacity style={s.methodBtn} onPress={handleEmail} activeOpacity={0.75}>
           <View style={s.methodIcon}>
             <Mail size={20} color={colors.purpleLight} strokeWidth={1.8} />
           </View>
@@ -139,7 +144,7 @@ const { language, setLanguage } = useSettingsStore();
 }
 
 const s = StyleSheet.create({
-    
+
   header: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
