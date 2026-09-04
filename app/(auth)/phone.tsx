@@ -7,8 +7,14 @@ import { Phone, Mail,Globe } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import type { Language } from '../../src/store/useSettingsStore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 
 type Mode = 'login' | 'register';
+
+GoogleSignin.configure({
+  webClientId: '411329716882-aocu6jsardalql32b471j93dj4t96sib.apps.googleusercontent.com',
+});
 
 export default function AuthWelcomeScreen() {
   const router = useRouter();
@@ -23,6 +29,24 @@ const { language, setLanguage } = useSettingsStore();
 
   function handleEmail() {
   router.push({ pathname: '/(auth)/email-input', params: { mode } });
+}
+
+async function handleGoogle() {
+  try {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    const idToken = userInfo.data?.idToken;
+    const credential = auth.GoogleAuthProvider.credential(idToken);
+    const result = await auth().signInWithCredential(credential);
+
+    if (result.additionalUserInfo?.isNewUser) {
+      // Yeni kullanıcı — kayıt yaptır
+      alert('Hesabınız oluşturuldu!');
+    }
+    router.replace('/(tabs)/home');
+  } catch (error) {
+    console.error(error);
+  }
 }
 
   return (
@@ -97,8 +121,7 @@ const { language, setLanguage } = useSettingsStore();
           <View style={s.dividerLine} />
         </View>
 
-        <TouchableOpacity style={[s.methodBtn, s.googleBtn]} activeOpacity={0.75}>
-          <View style={s.googleCircle}>
+<TouchableOpacity style={[s.methodBtn, s.googleBtn]} onPress={handleGoogle} activeOpacity={0.75}>          <View style={s.googleCircle}>
             <Text style={s.googleLetter}>G</Text>
           </View>
           <Text style={s.methodTxt}>{t('auth.welcome.with_google')}</Text>
