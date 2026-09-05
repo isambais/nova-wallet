@@ -1,27 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  TouchableOpacity, Animated, Dimensions, Easing,
+  TouchableOpacity, Animated, Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Menu, Eye, EyeOff,
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
-  TrendingUp, TrendingDown, Bot, CreditCard,
+  TrendingUp, TrendingDown, Bot,
   ChevronRight, Copy,
 } from 'lucide-react-native';
 import { PieChart } from 'react-native-gifted-charts';
-import { colors, gradients } from '../../src/theme/colors';
+import { colors } from '../../src/theme/colors';
 import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
-
-const { width: SW } = Dimensions.get('window');
 
 // ─── MOCK DATA ────────────────────────────────────────────────────
 const SEGMENTS = ['Hesabım', 'Yatırım', 'Kıymetli Maden', 'Birikim'];
 
-// Her segment için farklı gradient renk + bakiye verisi
-// activeSegment index'i ile bu array'den doğru objeyi seçeceğiz
 const SEGMENT_CONFIG = [
   {
     gradient: ['#3B1FA0', '#7C3AED', '#A855F7'] as [string, string, string],
@@ -75,11 +71,6 @@ const PIE_DATA = [
   { value: 30, color: colors.success,     label: 'Kripto Para' },
   { value: 20, color: colors.warning,     label: 'Kıymetli Maden' },
   { value: 10, color: colors.text3,       label: 'Nakit' },
-];
-
-const CARDS = [
-  { id: '1', last4: '4242', type: 'Visa',       balance: '₺ 4.200,00', gradient: gradients.card },
-  { id: '2', last4: '8810', type: 'Mastercard', balance: '₺ 8.250,00', gradient: ['#1A1040', '#2D1C6E', '#4C1D95'] as [string, string, string] },
 ];
 
 const TX_FILTERS = ['Tümü', 'Gelir', 'Gider'];
@@ -256,47 +247,21 @@ export default function HomeScreen() {
             <Text style={s.balanceChange}>{seg.change}</Text>
           </View>
 
-          {/* Ayırıcı çizgi */}
-          <View style={s.balanceDivider} />
-
-          {/* IBAN — sadece Hesabım segment'inde göster, user'dan alır */}
+          {/* IBAN — sadece Hesabım segment'inde göster */}
           {activeSegment === 0 && user?.iban && (
-            <View style={s.ibanRow}>
-              <Text style={s.ibanLabel}>IBAN</Text>
-              <Text style={s.ibanValue} numberOfLines={1}>
-                {balanceVisible ? user.iban : 'TR•• •••• •••• •••• •••• ••'}
-              </Text>
-              <TouchableOpacity style={s.ibanCopy}>
-                <Copy size={13} color="rgba(255,255,255,0.5)" />
-              </TouchableOpacity>
-            </View>
+            <>
+              <View style={s.balanceDivider} />
+              <View style={s.ibanRow}>
+                <Text style={s.ibanLabel}>IBAN</Text>
+                <Text style={s.ibanValue} numberOfLines={1}>
+                  {balanceVisible ? user.iban : 'TR•• •••• •••• •••• •••• ••'}
+                </Text>
+                <TouchableOpacity style={s.ibanCopy}>
+                  <Copy size={13} color="rgba(255,255,255,0.5)" />
+                </TouchableOpacity>
+              </View>
+            </>
           )}
-
-          {/* Gelir / Gider */}
-          <View style={s.balanceStats}>
-            <View style={s.balanceStat}>
-              <View style={s.statIconBox}>
-                <ArrowDown size={14} color="#86EFAC" />
-              </View>
-              <View>
-                <Text style={s.statLabel}>Gelir</Text>
-                <Text style={s.statValue}>
-                  {balanceVisible ? seg.income : '••••••'}
-                </Text>
-              </View>
-            </View>
-            <View style={s.balanceStat}>
-              <View style={[s.statIconBox, { backgroundColor: 'rgba(244,63,94,0.2)' }]}>
-                <ArrowUp size={14} color="#FDA4AF" />
-              </View>
-              <View>
-                <Text style={s.statLabel}>Gider</Text>
-                <Text style={s.statValue}>
-                  {balanceVisible ? seg.expense : '••••••'}
-                </Text>
-              </View>
-            </View>
-          </View>
         </LinearGradient>
         </Animated.View>
 
@@ -385,48 +350,6 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-
-        {/* ── KARTLARIM ── */}
-        {/*
-          Yatay ScrollView içinde kartlar.
-          Kart genişliği (SW - 60) → sol padding hesaba katılarak
-          neredeyse tam ekran genişliğinde, bir sonraki kart hafif görünüyor.
-        */}
-        <View style={[s.sectionRow, { marginTop: 24 }]}>
-          <Text style={s.sectionTitle}>Kartlarım</Text>
-          <TouchableOpacity style={s.seeAll}>
-            <Text style={s.seeAllText}>Tümü</Text>
-            <ChevronRight size={14} color={colors.purpleLight} />
-          </TouchableOpacity>
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={s.cardsScroll}
-          contentContainerStyle={{ paddingRight: 20 }}
-        >
-          {CARDS.map(card => (
-            <LinearGradient
-              key={card.id}
-              colors={card.gradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={s.creditCard}
-            >
-              <View style={s.cardTop}>
-                <CreditCard size={22} color="rgba(255,255,255,0.8)" strokeWidth={1.5} />
-                <Text style={s.cardType}>{card.type}</Text>
-              </View>
-              <Text style={s.cardNumber}>•••• •••• •••• {card.last4}</Text>
-              <View style={s.cardBottom}>
-                <View>
-                  <Text style={s.cardLabel}>Kart Bakiyesi</Text>
-                  <Text style={s.cardBalance}>{card.balance}</Text>
-                </View>
-              </View>
-            </LinearGradient>
-          ))}
-        </ScrollView>
 
         {/* ── SON İŞLEMLER ── */}
         {/*
@@ -582,16 +505,6 @@ const s = StyleSheet.create({
   legendDot:  { width: 10, height: 10, borderRadius: 5 },
   legendLabel:{ flex: 1, color: colors.text2, fontSize: 13 },
   legendValue:{ color: colors.text1, fontSize: 13, fontWeight: '600' },
-
-  // Cards
-  cardsScroll: { marginHorizontal: -20, paddingLeft: 20 },
-  creditCard:  { width: SW - 60, borderRadius: 20, padding: 22, marginRight: 14, height: 160 },
-  cardTop:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  cardType:    { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '600' },
-  cardNumber:  { color: 'rgba(255,255,255,0.9)', fontSize: 16, letterSpacing: 2, fontWeight: '600', marginBottom: 16 },
-  cardBottom:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  cardLabel:   { color: 'rgba(255,255,255,0.6)', fontSize: 11, marginBottom: 2 },
-  cardBalance: { color: '#fff', fontSize: 18, fontWeight: '800' },
 
   // Transactions
   txFilters:        { flexDirection: 'row', gap: 8, marginBottom: 12 },
