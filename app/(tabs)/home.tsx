@@ -10,79 +10,94 @@ import {
   Menu, Eye, EyeOff,
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
   TrendingUp, TrendingDown, Bot, ChevronRight, Copy,
+  ArrowLeftRight,
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
-import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
+import { useAuthStore } from '../../src/store/useAuthStore';
 import { getRecentTransactions } from '../../src/data/transactions';
 import { TransactionItem } from '../../src/components/ui/TransactionItem';
-import { formatCurrencyShort, type Currency } from '../../src/utils/currency';
+import { CURRENCY_SYMBOL, type Currency } from '../../src/utils/currency';
 
-// ─── PARA BİRİMİ SEÇENEKLERİ ─────────────────────────────────────
-const CURRENCIES: { key: Currency; label: string }[] = [
-  { key: 'TRY', label: '₺ TRY' },
-  { key: 'USD', label: '$ USD' },
-  { key: 'EUR', label: '€ EUR' },
+// ─── HESAPLAR (her para birimi ayrı bakiye + IBAN) ────────────────
+type Account = {
+  currency: Currency;
+  amount: number;           // native tutar
+  iban: string;
+  changePct: string;
+  changeUp: boolean;
+};
+
+const ACCOUNTS: Account[] = [
+  {
+    currency:  'TRY',
+    amount:    12450,
+    iban:      'TR12 0001 2345 6789 0123 4567 89',
+    changePct: '+%2,30 bugün',
+    changeUp:  true,
+  },
+  {
+    currency:  'USD',
+    amount:    2840,
+    iban:      'TR34 0004 5678 9012 3456 7890 12',
+    changePct: '+%1,85 bugün',
+    changeUp:  true,
+  },
+  {
+    currency:  'EUR',
+    amount:    1420,
+    iban:      'TR56 0007 8901 2345 6789 0123 45',
+    changePct: '+%1,42 bugün',
+    changeUp:  true,
+  },
 ];
+
+/** Native tutarı sembol + locale formatıyla gösterir (kur çevirmeden). */
+function fmtNative(amount: number, currency: Currency): string {
+  const sym    = CURRENCY_SYMBOL[currency];
+  const locale = currency === 'USD' ? 'en-US' : currency === 'EUR' ? 'de-DE' : 'tr-TR';
+  const str    = amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return `${sym} ${str}`;
+}
 
 // ─── MOCK DATA ────────────────────────────────────────────────────
 const SEGMENTS = ['Hesabım', 'Yatırım', 'Kıymetli Maden', 'Birikim'];
 
 const SEGMENT_CONFIG = [
-  {
-    gradient: ['#3B1FA0', '#7C3AED', '#A855F7'] as [string, string, string],
-    amountTRY: 12450,
-    changePct: '+%2,30 bugün',
-    changeUp: true,
-  },
-  {
-    gradient: ['#0C4A6E', '#0369A1', '#38BDF8'] as [string, string, string],
-    amountTRY: 6820,
-    changePct: '+%2,17 bugün',
-    changeUp: true,
-  },
-  {
-    gradient: ['#78350F', '#B45309', '#FCD34D'] as [string, string, string],
-    amountTRY: 2180,
-    changePct: '+%3,20 bugün',
-    changeUp: true,
-  },
-  {
-    gradient: ['#064E3B', '#059669', '#34D399'] as [string, string, string],
-    amountTRY: 3450,
-    changePct: '+%0,37 bugün',
-    changeUp: true,
-  },
+  { gradient: ['#3B1FA0', '#7C3AED', '#A855F7'] as [string, string, string] },
+  { gradient: ['#0C4A6E', '#0369A1', '#38BDF8'] as [string, string, string] },
+  { gradient: ['#78350F', '#B45309', '#FCD34D'] as [string, string, string] },
+  { gradient: ['#064E3B', '#059669', '#34D399'] as [string, string, string] },
 ];
 
 const QUICK_ACTIONS = [
-  { Icon: ArrowUp,    label: 'Gönder',    color: '#7C3AED' },
-  { Icon: ArrowDown,  label: 'Al',        color: '#10B981' },
-  { Icon: RefreshCcw, label: 'Takas',     color: '#F59E0B' },
-  { Icon: LayoutGrid, label: 'Daha Fazla',color: '#7A8BA8' },
+  { Icon: ArrowUp,    label: 'Gönder',     color: '#7C3AED' },
+  { Icon: ArrowDown,  label: 'Al',         color: '#10B981' },
+  { Icon: RefreshCcw, label: 'Takas',      color: '#F59E0B' },
+  { Icon: LayoutGrid, label: 'Daha Fazla', color: '#7A8BA8' },
 ];
 
 const EXCHANGE_RATES = [
-  { pair: 'USD / TRY', rate: '32,45', change: '+0,12%', up: true },
+  { pair: 'USD / TRY', rate: '32,45', change: '+0,12%', up: true  },
   { pair: 'EUR / TRY', rate: '35,10', change: '-0,05%', up: false },
-  { pair: 'XAU / TRY', rate: '2.180', change: '+0,31%', up: true },
+  { pair: 'XAU / TRY', rate: '2.180', change: '+0,31%', up: true  },
 ];
-
 
 // ─── ANA EKRAN ────────────────────────────────────────────────────
 export default function HomeScreen() {
   const router = useRouter();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [activeSegment, setActiveSegment]   = useState(0);
-  const [activeCurrency, setActiveCurrency] = useState<Currency>('TRY');
+  const [accountIdx, setAccountIdx]         = useState(0);
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
-  const user    = useAuthStore((s) => s.user);
-  const setUser = useAuthStore((s) => s.setUser);
+  const user = useAuthStore((s) => s.user);
 
-  useEffect(() => {
-    if (user && !user.iban) {
-      setUser({ ...user, iban: generateMockIban() });
-    }
-  }, [user?.id]);
+  const account = ACCOUNTS[accountIdx];
+
+  const handleSwap = () => setAccountIdx(i => (i + 1) % ACCOUNTS.length);
+
+  const balanceStr = balanceVisible
+    ? fmtNative(account.amount, account.currency)
+    : '••••••';
 
   const pillX = useRef(new Animated.Value(0)).current;
   const pillW = useRef(new Animated.Value(80)).current;
@@ -113,10 +128,7 @@ export default function HomeScreen() {
     ]).start();
   }, [activeSegment, tabLayouts]);
 
-  const seg        = SEGMENT_CONFIG[activeSegment];
-  const balanceStr = balanceVisible
-    ? formatCurrencyShort(seg.amountTRY, activeCurrency)
-    : '••••••';
+  const seg = SEGMENT_CONFIG[activeSegment];
 
   // Son 3 işlem — tümü için navigasyon kullanılıyor
   const recentTx = getRecentTransactions(3);
@@ -182,45 +194,45 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
             style={s.balanceCard}
           >
+            {/* Üst satır: başlık | göz + hesap değiştir */}
             <View style={s.balanceTop}>
               <Text style={s.balanceTitle}>Toplam Varlık</Text>
-              <TouchableOpacity onPress={() => setBalanceVisible(v => !v)}>
-                {balanceVisible
-                  ? <Eye size={18} color="rgba(255,255,255,0.7)" />
-                  : <EyeOff size={18} color="rgba(255,255,255,0.7)" />
-                }
-              </TouchableOpacity>
+              <View style={s.topRight}>
+                <TouchableOpacity onPress={() => setBalanceVisible(v => !v)}>
+                  {balanceVisible
+                    ? <Eye size={18} color="rgba(255,255,255,0.7)" />
+                    : <EyeOff size={18} color="rgba(255,255,255,0.7)" />
+                  }
+                </TouchableOpacity>
+                <TouchableOpacity style={s.swapBtn} onPress={handleSwap}>
+                  <ArrowLeftRight size={13} color="rgba(255,255,255,0.9)" strokeWidth={2.2} />
+                  <Text style={s.swapLabel}>{account.currency}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
+            {/* Bakiye */}
             <Text style={s.balanceAmount}>{balanceStr}</Text>
 
-            {/* Para birimi seçici */}
-            <View style={s.currencyRow}>
-              {CURRENCIES.map(c => (
-                <TouchableOpacity
-                  key={c.key}
-                  onPress={() => setActiveCurrency(c.key)}
-                  style={[s.currencyBtn, c.key === activeCurrency && s.currencyBtnActive]}
-                >
-                  <Text style={[s.currencyLabel, c.key === activeCurrency && s.currencyLabelActive]}>
-                    {c.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
+            {/* Değişim */}
             <View style={s.balanceChangeRow}>
-              <TrendingUp size={14} color="#86EFAC" strokeWidth={2} />
-              <Text style={s.balanceChange}>{seg.changePct}</Text>
+              {account.changeUp
+                ? <TrendingUp  size={14} color="#86EFAC" strokeWidth={2} />
+                : <TrendingDown size={14} color="#F87171" strokeWidth={2} />
+              }
+              <Text style={[s.balanceChange, { color: account.changeUp ? '#86EFAC' : '#F87171' }]}>
+                {account.changePct}
+              </Text>
             </View>
 
-            {activeSegment === 0 && user?.iban && (
+            {/* IBAN — sadece Hesabım segmentinde */}
+            {activeSegment === 0 && (
               <>
                 <View style={s.balanceDivider} />
                 <View style={s.ibanRow}>
                   <Text style={s.ibanLabel}>IBAN</Text>
                   <Text style={s.ibanValue} numberOfLines={1}>
-                    {balanceVisible ? user.iban : 'TR•• •••• •••• •••• •••• ••'}
+                    {balanceVisible ? account.iban : 'TR•• •••• •••• •••• •••• ••'}
                   </Text>
                   <TouchableOpacity style={s.ibanCopy}>
                     <Copy size={13} color="rgba(255,255,255,0.5)" />
@@ -262,8 +274,8 @@ export default function HomeScreen() {
                 <Text style={s.rateValue}>₺ {r.rate}</Text>
                 <View style={[s.rateBadge, { backgroundColor: r.up ? colors.success + '22' : colors.error + '22' }]}>
                   {r.up
-                    ? <TrendingUp size={11} color={colors.success} />
-                    : <TrendingDown size={11} color={colors.error} />
+                    ? <TrendingUp  size={11} color={colors.success} />
+                    : <TrendingDown size={11} color={colors.error}   />
                   }
                   <Text style={[s.rateChange, { color: r.up ? colors.success : colors.error }]}>
                     {r.change}
@@ -334,18 +346,18 @@ const s = StyleSheet.create({
   segLabel:      { color: colors.text2, fontSize: 14, fontWeight: '500' },
   segLabelActive:{ color: '#fff', fontWeight: '700' },
 
-  balanceCard:      { borderRadius: 20, padding: 20, marginBottom: 24 },
-  balanceTop:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  balanceTitle:     { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500' },
-  balanceAmount:    { color: '#fff', fontSize: 32, fontWeight: '800', letterSpacing: 0.5, marginBottom: 6 },
-  currencyRow:         { flexDirection: 'row', gap: 6, marginBottom: 12 },
-  currencyBtn:         { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)' },
-  currencyBtnActive:   { backgroundColor: 'rgba(255,255,255,0.9)' },
-  currencyLabel:       { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '600' },
-  currencyLabelActive: { color: '#7C3AED', fontWeight: '700' },
+  // Bakiye kartı
+  balanceCard:    { borderRadius: 20, padding: 20, marginBottom: 24 },
+  balanceTop:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  balanceTitle:   { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500' },
 
+  topRight:  { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  swapBtn:   { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  swapLabel: { color: '#fff', fontSize: 12, fontWeight: '700' },
+
+  balanceAmount:    { color: '#fff', fontSize: 32, fontWeight: '800', letterSpacing: 0.5, marginBottom: 6 },
   balanceChangeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 16 },
-  balanceChange:    { color: '#86EFAC', fontSize: 13, fontWeight: '500' },
+  balanceChange:    { fontSize: 13, fontWeight: '500' },
   balanceDivider:   { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginBottom: 16 },
   ibanRow:          { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
   ibanLabel:        { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '600' },
@@ -371,10 +383,7 @@ const s = StyleSheet.create({
   rateBadge:     { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   rateChange:    { fontSize: 12, fontWeight: '600' },
 
-  // İşlemler
   txCard:      { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
-  txEmpty:     { padding: 24, alignItems: 'center' },
-  txEmptyText: { color: colors.text3, fontSize: 14 },
 
   // FAB
   fab:         { position: 'absolute', bottom: 24, right: 24, borderRadius: 30, elevation: 8, shadowColor: colors.purple, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12 },
