@@ -11,6 +11,7 @@ type User = {
   language: 'tr' | 'en' | 'ar';
   currency: Currency;
   balance: number;
+  iban: string;   // ← eklendi: her kullanıcıya unique, register'da üretilir
 };
 
 type AuthState = {
@@ -21,6 +22,14 @@ type AuthState = {
   setPin: (pin: string) => void;
   logout: () => void;
 };
+
+// Mock IBAN üretici — gerçekte backend verir
+// TR + 2 kontrol + 24 rakam = 26 karakter
+export function generateMockIban(): string {
+  const digits = Array.from({ length: 22 }, () => Math.floor(Math.random() * 10)).join('');
+  const raw = `TR00 0001 0017 ${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)} ${digits.slice(12, 14)}`;
+  return raw;
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(
