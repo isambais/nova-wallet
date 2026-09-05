@@ -13,7 +13,7 @@ const PIN_LENGTH = 6;
 export default function PinScreen() {
   const router = useRouter();
   const { pinMode } = useLocalSearchParams<{ pinMode?: 'create' | 'enter' }>();
-  const { pin: storedPin, setPin } = useAuthStore();
+  const { pin: storedPin, setPin, logout } = useAuthStore();
 
   const [step, setStep] = useState<'first' | 'confirm'>('first');
   const [pin, setLocalPin] = useState('');
@@ -69,6 +69,18 @@ export default function PinScreen() {
     }
   }
 
+  // Kullanıcı değiştir — oturumu kapat, auth'a yönlendir
+  function handleSwitchUser() {
+    logout();
+    router.replace('/');
+  }
+
+  // Şifremi unuttum — PIN'i sıfırla, OTP doğrulamasına yönlendir
+  function handleForgotPin() {
+    setPin('');       // store'daki PIN'i temizle
+    router.replace({ pathname: '/(auth)/phone', params: { mode: 'login' } });
+  }
+
   const title = pinMode === 'enter'
     ? "PIN'ini gir"
     : step === 'first' ? 'PIN Oluştur' : "PIN'ini Onayla";
@@ -121,12 +133,26 @@ export default function PinScreen() {
 
           {error ? <Text style={s.error}>{error}</Text> : null}
 
+          {/* Create mode — geri butonu */}
           {pinMode !== 'enter' && step === 'confirm' && (
             <TouchableOpacity
               onPress={() => { setStep('first'); setLocalPin(''); setFirstPin(''); }}
             >
               <Text style={s.backLink}>← Geri</Text>
             </TouchableOpacity>
+          )}
+
+          {/* Enter mode — kullanıcı değiştir + şifremi unuttum */}
+          {pinMode === 'enter' && (
+            <View style={s.bottomLinks}>
+              <TouchableOpacity onPress={handleForgotPin}>
+                <Text style={s.linkText}>Şifremi Unuttum</Text>
+              </TouchableOpacity>
+              <Text style={s.dot2}>·</Text>
+              <TouchableOpacity onPress={handleSwitchUser}>
+                <Text style={s.linkText}>Kullanıcı Değiştir</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       </KeyboardAvoidingView>
@@ -136,7 +162,6 @@ export default function PinScreen() {
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  // Android küçük input'u focus edemez — ekran dışına taşıyoruz
   hiddenInput: { position: 'absolute', top: -200, left: 0, width: 100, height: 40, opacity: 0 },
   body: { flex: 1, paddingHorizontal: 24, paddingTop: 48, alignItems: 'center' },
   logoWrap: {
@@ -147,28 +172,20 @@ const s = StyleSheet.create({
     shadowColor: colors.purple, shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4, shadowRadius: 20, elevation: 8,
   },
-  logoTxt: { color: '#fff', fontSize: 26, fontWeight: '800' },
-  title: {
-    color: colors.text1, fontSize: 24, fontWeight: '700',
-    marginBottom: 10, letterSpacing: -0.5,
-  },
-  sub: {
-    color: colors.text2, fontSize: 14,
-    textAlign: 'center', lineHeight: 22, marginBottom: 40,
-  },
-  dots: { flexDirection: 'row', gap: 16, marginBottom: 20 },
+  logoTxt:  { color: '#fff', fontSize: 26, fontWeight: '800' },
+  title:    { color: colors.text1, fontSize: 24, fontWeight: '700', marginBottom: 10, letterSpacing: -0.5 },
+  sub:      { color: colors.text2, fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 40 },
+  dots:     { flexDirection: 'row', gap: 16, marginBottom: 20 },
   dot: {
     width: 14, height: 14, borderRadius: 7,
     borderWidth: 1.5, borderColor: colors.surface3,
     backgroundColor: 'transparent',
   },
-  dotFilled: { backgroundColor: colors.purple, borderColor: colors.purple },
-  dotActive: {
-    borderColor: colors.purpleLight,
-    shadowColor: colors.purple,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5, shadowRadius: 8, elevation: 4,
-  },
-  error: { color: colors.error, fontSize: 13, textAlign: 'center', marginTop: 16 },
-  backLink: { color: colors.text2, fontSize: 13, textAlign: 'center', marginTop: 20 },
+  dotFilled:  { backgroundColor: colors.purple, borderColor: colors.purple },
+  dotActive:  { borderColor: colors.purpleLight, shadowColor: colors.purple, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 8, elevation: 4 },
+  error:      { color: colors.error, fontSize: 13, textAlign: 'center', marginTop: 16 },
+  backLink:   { color: colors.text2, fontSize: 13, textAlign: 'center', marginTop: 20 },
+  bottomLinks:{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 32 },
+  linkText:   { color: colors.purpleLight, fontSize: 13, fontWeight: '500' },
+  dot2:       { color: colors.text3, fontSize: 16 },
 });
