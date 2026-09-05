@@ -4,7 +4,7 @@ import {
   Zap, Tv, Repeat, DollarSign,
 } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
-import { formatAmount } from '../../utils/currency';
+import { formatAmount, type Currency } from '../../utils/currency';
 import type { Transaction, TransactionCategory } from '../../data/transactions';
 
 // ─── KATEGORİ KONFİGÜRASYONU ─────────────────────────────────────
@@ -85,11 +85,18 @@ interface Props {
   tx: Transaction;
   showBorder?: boolean;
   onPress?: (tx: Transaction) => void;
+  displayCurrency?: Currency;   // gösterim para birimi (varsayılan: tx.accountCurrency)
 }
 
-export function TransactionItem({ tx, showBorder = true, onPress }: Props) {
+export function TransactionItem({
+  tx,
+  showBorder = true,
+  onPress,
+  displayCurrency,
+}: Props) {
   const cfg = getCategoryConfig(tx.category);
   const isIncome = tx.amount >= 0;
+  const currency: Currency = displayCurrency ?? tx.accountCurrency ?? 'TRY';
 
   return (
     <TouchableOpacity
@@ -119,7 +126,7 @@ export function TransactionItem({ tx, showBorder = true, onPress }: Props) {
 
       {/* Tutar */}
       <Text style={[s.amount, { color: isIncome ? colors.success : colors.error }]}>
-        {formatAmount(tx.amount)}
+        {formatAmount(tx.amount, currency)}
       </Text>
     </TouchableOpacity>
   );

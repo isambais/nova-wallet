@@ -14,6 +14,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore } from '../../src/store/useAuthStore';
+import { useAccountStore } from '../../src/store/useAccountStore';
 import { getRecentTransactions } from '../../src/data/transactions';
 import { TransactionItem } from '../../src/components/ui/TransactionItem';
 import { CURRENCY_SYMBOL, type Currency } from '../../src/utils/currency';
@@ -21,7 +22,7 @@ import { CURRENCY_SYMBOL, type Currency } from '../../src/utils/currency';
 // ─── HESAPLAR (her para birimi ayrı bakiye + IBAN) ────────────────
 type Account = {
   currency: Currency;
-  amount: number;           // native tutar
+  amount: number;
   iban: string;
   changePct: string;
   changeUp: boolean;
@@ -87,20 +88,26 @@ export default function HomeScreen() {
   const router = useRouter();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [activeSegment, setActiveSegment]   = useState(0);
-  const [accountIdx, setAccountIdx]         = useState(0);
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
-  const user = useAuthStore((s) => s.user);
 
-  const account = ACCOUNTS[accountIdx];
+  const user              = useAuthStore((s) => s.user);
+  const activeCurrency    = useAccountStore((s) => s.activeCurrency);
+  const setActiveCurrency = useAccountStore((s) => s.setActiveCurrency);
 
-  const handleSwap = () => setAccountIdx(i => (i + 1) % ACCOUNTS.length);
+  const accountIdx = ACCOUNTS.findIndex(a => a.currency === activeCurrency);
+  const account    = ACCOUNTS[accountIdx] ?? ACCOUNTS[0];
+
+  const handleSwap = () => {
+    const nextIdx = (accountIdx + 1) % ACCOUNTS.length;
+    setActiveCurrency(ACCOUNTS[nextIdx].currency);
+  };
 
   const balanceStr = balanceVisible
     ? fmtNative(account.amount, account.currency)
     : '••••••';
 
-  const pillX = useRef(new Animated.Value(0)).current;
-  const pillW = useRef(new Animated.Value(80)).current;
+  const pillX       = useRef(new Animated.Value(0)).current;
+  const pillW       = useRef(new Animated.Value(80)).current;
   const cardOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -128,10 +135,10 @@ export default function HomeScreen() {
     ]).start();
   }, [activeSegment, tabLayouts]);
 
-  const seg = SEGMENT_CONFIG[activeSegment];
+  // Son 3 işlem — aktif hesaba göre
+  const recentTx = getRecentTransactions(3, activeCurrency);
 
-  // Son 3 işlem — tümü için navigasyon kullanılıyor
-  const recentTx = getRecentTransactions(3);
+  const seg = SEGMENT_CONFIG[activeSegment];
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
@@ -194,13 +201,13 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
             style={s.balanceCard}
           >
-            {/* Üst satır: başlık | göz + hesap değiştir */}
+            {/* Üst satır */}
             <View style={s.balanceTop}>
               <Text style={s.balanceTitle}>Toplam Varlık</Text>
               <View style={s.topRight}>
                 <TouchableOpacity onPress={() => setBalanceVisible(v => !v)}>
                   {balanceVisible
-                    ? <Eye size={18} color="rgba(255,255,255,0.7)" />
+                    ? <Eye    size={18} color="rgba(255,255,255,0.7)" />
                     : <EyeOff size={18} color="rgba(255,255,255,0.7)" />
                   }
                 </TouchableOpacity>
@@ -217,7 +224,7 @@ export default function HomeScreen() {
             {/* Değişim */}
             <View style={s.balanceChangeRow}>
               {account.changeUp
-                ? <TrendingUp  size={14} color="#86EFAC" strokeWidth={2} />
+                ? <TrendingUp   size={14} color="#86EFAC" strokeWidth={2} />
                 : <TrendingDown size={14} color="#F87171" strokeWidth={2} />
               }
               <Text style={[s.balanceChange, { color: account.changeUp ? '#86EFAC' : '#F87171' }]}>
@@ -225,7 +232,7 @@ export default function HomeScreen() {
               </Text>
             </View>
 
-            {/* IBAN — sadece Hesabım segmentinde */}
+            {/* IBAN — sadece Hesabım */}
             {activeSegment === 0 && (
               <>
                 <View style={s.balanceDivider} />
@@ -274,7 +281,7 @@ export default function HomeScreen() {
                 <Text style={s.rateValue}>₺ {r.rate}</Text>
                 <View style={[s.rateBadge, { backgroundColor: r.up ? colors.success + '22' : colors.error + '22' }]}>
                   {r.up
-                    ? <TrendingUp  size={11} color={colors.success} />
+                    ? <TrendingUp   size={11} color={colors.success} />
                     : <TrendingDown size={11} color={colors.error}   />
                   }
                   <Text style={[s.rateChange, { color: r.up ? colors.success : colors.error }]}>
@@ -295,15 +302,21 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* İşlem listesi — son 3 */}
         <View style={s.txCard}>
-          {recentTx.map((tx, i) => (
-            <TransactionItem
-              key={tx.id}
-              tx={tx}
-              showBorder={i < recentTx.length - 1}
-            />
-          ))}
+          {recentTx.length === 0 ? (
+            <View style={s.txEmpty}>
+              <Text style={s.txEmptyText}>Bu hesapta işlem yok</Text>
+            </View>
+          ) : (
+            recentTx.map((tx, i) => (
+              <TransactionItem
+                key={tx.id}
+                tx={tx}
+                showBorder={i < recentTx.length - 1}
+                displayCurrency={activeCurrency}
+              />
+            ))
+          )}
         </View>
 
         <View style={{ height: 100 }} />
@@ -346,14 +359,12 @@ const s = StyleSheet.create({
   segLabel:      { color: colors.text2, fontSize: 14, fontWeight: '500' },
   segLabelActive:{ color: '#fff', fontWeight: '700' },
 
-  // Bakiye kartı
   balanceCard:    { borderRadius: 20, padding: 20, marginBottom: 24 },
   balanceTop:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   balanceTitle:   { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500' },
-
-  topRight:  { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  swapBtn:   { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
-  swapLabel: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  topRight:       { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  swapBtn:        { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  swapLabel:      { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   balanceAmount:    { color: '#fff', fontSize: 32, fontWeight: '800', letterSpacing: 0.5, marginBottom: 6 },
   balanceChangeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 16 },
@@ -384,8 +395,9 @@ const s = StyleSheet.create({
   rateChange:    { fontSize: 12, fontWeight: '600' },
 
   txCard:      { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  txEmpty:     { padding: 24, alignItems: 'center' },
+  txEmptyText: { color: colors.text3, fontSize: 14 },
 
-  // FAB
   fab:         { position: 'absolute', bottom: 24, right: 24, borderRadius: 30, elevation: 8, shadowColor: colors.purple, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12 },
   fabGradient: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
 });

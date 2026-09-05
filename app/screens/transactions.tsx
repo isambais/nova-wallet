@@ -11,13 +11,15 @@ import * as Sharing from 'expo-sharing';
 import { colors } from '../../src/theme/colors';
 import { mockTransactions } from '../../src/data/transactions';
 import { TransactionItem } from '../../src/components/ui/TransactionItem';
+import { useAccountStore } from '../../src/store/useAccountStore';
+import { CURRENCY_SYMBOL } from '../../src/utils/currency';
 import type { Transaction } from '../../src/data/transactions';
 
 // ─── TİPLER ──────────────────────────────────────────────────────
 type TimeRange = {
   key: string;
   label: string;
-  days: number | null;   // null = tümü
+  days: number | null;
 };
 
 // ─── ZAMAN FİLTRELERİ ────────────────────────────────────────────
@@ -38,7 +40,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 // ─── PDF HTML ─────────────────────────────────────────────────────
-function buildPdfHtml(txList: Transaction[], rangeLabel: string): string {
+function buildPdfHtml(txList: Transaction[], rangeLabel: string, currencySymbol: string): string {
   const now = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
   const totalIncome  = txList.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
   const totalExpense = txList.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
@@ -56,7 +58,7 @@ function buildPdfHtml(txList: Transaction[], rangeLabel: string): string {
         <td>${tx.merchant}</td>
         <td>${cat}</td>
         <td>${date}</td>
-        <td style="color:${color};font-weight:700;text-align:right">${sign}₺ ${abs}</td>
+        <td style="color:${color};font-weight:700;text-align:right">${sign}${currencySymbol} ${abs}</td>
       </tr>`;
   }).join('');
 
@@ -88,11 +90,11 @@ function buildPdfHtml(txList: Transaction[], rangeLabel: string): string {
   <div class="summary">
     <div class="sum-box income">
       <div class="sum-label">Toplam Gelir</div>
-      <div class="sum-val">+₺ ${totalIncome.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</div>
+      <div class="sum-val">+${currencySymbol} ${totalIncome.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</div>
     </div>
     <div class="sum-box expense">
       <div class="sum-label">Toplam Gider</div>
-      <div class="sum-val">-₺ ${totalExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</div>
+      <div class="sum-val">-${currencySymbol} ${totalExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</div>
     </div>
   </div>
   <p class="footer">Nova Wallet — otomatik oluşturuldu</p>
@@ -102,15 +104,20 @@ function buildPdfHtml(txList: Transaction[], rangeLabel: string): string {
 // ─── EKRAN ────────────────────────────────────────────────────────
 export default function TransactionsScreen() {
   const router = useRouter();
-  const [activeTime, setActiveTime]       = useState<TimeRange>(TIME_RANGES[0]);
-  const [search, setSearch]               = useState('');
-  const [timeModalVisible, setTimeModal]  = useState(false);
-  const [pdfLoading, setPdfLoading]       = useState(false);
+  const [activeTime, setActiveTime]      = useState<TimeRange>(TIME_RANGES[0]);
+  const [search, setSearch]              = useState('');
+  const [timeModalVisible, setTimeModal] = useState(false);
+  const [pdfLoading, setPdfLoading]      = useState(false);
+
+  const activeCurrency = useAccountStore((s) => s.activeCurrency);
+  const currencySymbol = CURRENCY_SYMBOL[activeCurrency];
 
   const filtered = useMemo(() => {
     const now = Date.now();
 
     return [...mockTransactions]
+      // Hesap filtresi
+      .filter(tx => tx.accountCurrency === activeCurrency)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .filter(tx => {
         // Zaman filtresi
@@ -128,7 +135,7 @@ export default function TransactionsScreen() {
         }
         return true;
       });
-  }, [activeTime, search]);
+  }, [activeTime, search, activeCurrency]);
 
   const isTimeFiltered = activeTime.key !== 'all';
 
@@ -136,7 +143,7 @@ export default function TransactionsScreen() {
     if (pdfLoading) return;
     setPdfLoading(true);
     try {
-      const html  = buildPdfHtml(filtered, activeTime.label);
+      const html  = buildPdfHtml(filtered, activeTime.label, currencySymbol);
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'İşlemleri İndir' });
     } catch (e) {
@@ -154,7 +161,12 @@ export default function TransactionsScreen() {
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
           <ArrowLeft size={20} color={colors.text1} strokeWidth={2} />
         </TouchableOpacity>
-        <Text style={s.title}>İşlemler</Text>
+        <View style={s.titleRow}>
+          <Text style={s.title}>İşlemler</Text>
+          <View style={s.currencyBadge}>
+            <Text style={s.currencyBadgeText}>{activeCurrency}</Text>
+          </View>
+        </View>
         <TouchableOpacity style={s.backBtn} onPress={handleDownload} disabled={pdfLoading}>
           {pdfLoading
             ? <ActivityIndicator size="small" color={colors.purple} />
@@ -228,6 +240,7 @@ export default function TransactionsScreen() {
                 key={tx.id}
                 tx={tx}
                 showBorder={i < filtered.length - 1}
+                displayCurrency={activeCurrency}
               />
             ))
           )}
@@ -274,16 +287,17 @@ const s = StyleSheet.create({
 
   header:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.surface1, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  titleRow:{ flexDirection: 'row', alignItems: 'center', gap: 8 },
   title:   { color: colors.text1, fontSize: 17, fontWeight: '700' },
+  currencyBadge:     { backgroundColor: colors.purple + '22', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: colors.purple + '44' },
+  currencyBadgeText: { color: colors.purple, fontSize: 11, fontWeight: '700' },
 
-  // Arama + filtre ikonu satırı
   searchRow:          { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, gap: 10, marginBottom: 10 },
   searchBox:          { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface1, borderRadius: 12, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, height: 42, gap: 8 },
   searchInput:        { flex: 1, color: colors.text1, fontSize: 14, paddingVertical: 0 },
   filterIconBtn:      { width: 42, height: 42, borderRadius: 12, backgroundColor: colors.surface1, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   filterIconBtnActive:{ backgroundColor: colors.purple, borderColor: colors.purple },
 
-  // Aktif zaman rozeti
   timeBadgeRow:  { paddingHorizontal: 20, marginBottom: 8 },
   timeBadge:     { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: colors.purple + '18', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: colors.purple + '44' },
   timeBadgeText: { color: colors.purple, fontSize: 12, fontWeight: '600' },
@@ -296,12 +310,11 @@ const s = StyleSheet.create({
   empty:    { padding: 32, alignItems: 'center' },
   emptyText:{ color: colors.text3, fontSize: 14 },
 
-  // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalCard:    { backgroundColor: colors.surface1, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 20, paddingBottom: 40, paddingHorizontal: 20, borderWidth: 1, borderColor: colors.border },
   modalTitle:   { color: colors.text1, fontSize: 16, fontWeight: '700', marginBottom: 16 },
   modalRow:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border },
-  modalRowActive: { },
+  modalRowActive: {},
   modalRowText:       { color: colors.text2, fontSize: 15, fontWeight: '500' },
   modalRowTextActive: { color: colors.purple, fontWeight: '700' },
 });
