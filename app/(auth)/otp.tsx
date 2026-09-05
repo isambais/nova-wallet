@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
 import { OTPBox } from '../../src/components/ui/OTPBox';
 
 const A = {
@@ -57,6 +57,7 @@ export default function OTPScreen() {
     language: 'tr',
     currency: 'TRY',
     balance: 0,
+    iban: generateMockIban(),   // her yeni kullanıcıya unique IBAN
   });
 
   if (mode === 'register') {

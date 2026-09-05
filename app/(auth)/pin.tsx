@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   TextInput, KeyboardAvoidingView, Platform,
@@ -20,6 +20,12 @@ export default function PinScreen() {
   const [firstPin, setFirstPin] = useState('');
   const [error, setError] = useState('');
   const inputRef = useRef<TextInput>(null);
+
+  // Android'de autoFocus güvenilir değil — mount'tan 300ms sonra zorla focus
+  useEffect(() => {
+    const t = setTimeout(() => inputRef.current?.focus(), 300);
+    return () => clearTimeout(t);
+  }, []);
 
   function handleChange(text: string) {
     const clean = text.replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
@@ -130,7 +136,8 @@ export default function PinScreen() {
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  hiddenInput: { position: 'absolute', opacity: 0, width: 1, height: 1 },
+  // Android küçük input'u focus edemez — ekran dışına taşıyoruz
+  hiddenInput: { position: 'absolute', top: -200, left: 0, width: 100, height: 40, opacity: 0 },
   body: { flex: 1, paddingHorizontal: 24, paddingTop: 48, alignItems: 'center' },
   logoWrap: {
     width: 56, height: 56, borderRadius: 18,
