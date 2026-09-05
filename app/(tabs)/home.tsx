@@ -12,7 +12,7 @@ import {
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
   TrendingUp, TrendingDown, Bot, ChevronRight, Copy,
   ArrowLeftRight, SlidersHorizontal, Check, X,
-  FileText, ArrowDownLeft, Upload, List, Gem, Target, Snowflake,
+  FileText, ArrowDownLeft, Upload, Gem, Target, Snowflake, Flag,
   Heart, Users,
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
@@ -69,10 +69,10 @@ const MORE_ACTIONS = [
   { id: 'fatura',  Icon: FileText,       label: 'Fatura Öde',     color: '#7C3AED', destructive: false },
   { id: 'iste',    Icon: ArrowDownLeft,  label: 'Para İste',      color: '#10B981', destructive: false },
   { id: 'yukle',   Icon: Upload,         label: 'Yükle',          color: '#F59E0B', destructive: false },
-  { id: 'tal',     Icon: List,           label: 'Talimatlar',     color: '#06B6D4', destructive: false },
+  { id: 'sim',     Icon: Target,         label: 'Simülatör',      color: '#F97316', destructive: false },
   { id: 'altin',   Icon: Gem,            label: 'Altın Al',       color: '#D97706', destructive: false },
   { id: 'yatirim', Icon: TrendingUp,     label: 'Yatırım',        color: '#3B82F6', destructive: false },
-  { id: 'birikim', Icon: Target,         label: 'Birikim Hedefi', color: '#8B5CF6', destructive: false },
+  { id: 'birikim', Icon: Flag,           label: 'Birikim Hedefi', color: '#8B5CF6', destructive: false },
   { id: 'freeze',  Icon: Snowflake,      label: 'Kartı Dondur',   color: '#EF4444', destructive: true  },
 ];
 
@@ -390,7 +390,9 @@ export default function HomeScreen() {
             {/* 4×2 grid */}
             <View style={s.moreGrid}>
               {MORE_ACTIONS.map(({ id, Icon, label, color, destructive }) => (
-                <TouchableOpacity key={id} style={s.moreItem} activeOpacity={0.7}>
+                <TouchableOpacity key={id} style={s.moreItem} activeOpacity={0.7}
+                  onPress={() => { if (id === 'sim') { setMoreModal(false); router.push('/screens/simulator'); } }}
+                >
                   <View style={[
                     s.moreIconBox,
                     { backgroundColor: color + '18', borderColor: color + '33' },
