@@ -11,7 +11,6 @@ import {
   TrendingUp, TrendingDown, Bot,
   ChevronRight, Copy,
 } from 'lucide-react-native';
-import { PieChart } from 'react-native-gifted-charts';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
 
@@ -22,32 +21,24 @@ const SEGMENT_CONFIG = [
   {
     gradient: ['#3B1FA0', '#7C3AED', '#A855F7'] as [string, string, string],
     balance: '₺ 12.450,00',
-    income:  '₺ 8.200,00',
-    expense: '₺ 3.750,00',
     change:  '+₺ 280,50 (%2,30) bugün',
     changeUp: true,
   },
   {
     gradient: ['#0C4A6E', '#0369A1', '#38BDF8'] as [string, string, string],
     balance: '₺ 6.820,00',
-    income:  '₺ 1.450,00',
-    expense: '₺ 1.200,00',
     change:  '+₺ 145,00 (%2,17) bugün',
     changeUp: true,
   },
   {
     gradient: ['#78350F', '#B45309', '#FCD34D'] as [string, string, string],
     balance: '₺ 2.180,00',
-    income:  '₺ 680,00',
-    expense: '₺ 0,00',
     change:  '+₺ 67,50 (%3,20) bugün',
     changeUp: true,
   },
   {
     gradient: ['#064E3B', '#059669', '#34D399'] as [string, string, string],
     balance: '₺ 3.450,00',
-    income:  '₺ 500,00',
-    expense: '₺ 0,00',
     change:  '+₺ 12,80 (%0,37) bugün',
     changeUp: true,
   },
@@ -64,13 +55,6 @@ const EXCHANGE_RATES = [
   { pair: 'USD / TRY', rate: '32,45', change: '+0,12%', up: true },
   { pair: 'EUR / TRY', rate: '35,10', change: '-0,05%', up: false },
   { pair: 'XAU / TRY', rate: '2.180', change: '+0,31%', up: true },
-];
-
-const PIE_DATA = [
-  { value: 40, color: colors.purple,      label: 'Hisse Senedi' },
-  { value: 30, color: colors.success,     label: 'Kripto Para' },
-  { value: 20, color: colors.warning,     label: 'Kıymetli Maden' },
-  { value: 10, color: colors.text3,       label: 'Nakit' },
 ];
 
 const TX_FILTERS = ['Tümü', 'Gelir', 'Gider'];
@@ -104,14 +88,12 @@ export default function HomeScreen() {
   const pillW = useRef(new Animated.Value(80)).current;
 
   // Bakiye kartı fade animasyonu
-  // useNativeDriver:true → opacity GPU'da çalışır, hiç takılmaz
   const cardOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const layout = tabLayouts[activeSegment];
     if (!layout) return;
 
-    // Pill: spring yerine timing — daha keskin ve öngörülebilir
     Animated.parallel([
       Animated.timing(pillX, {
         toValue: layout.x,
@@ -127,17 +109,14 @@ export default function HomeScreen() {
       }),
     ]).start();
 
-    // Kart fade: hızlıca 0'a in → renk değişti → geri 1'e çık
     Animated.sequence([
       Animated.timing(cardOpacity, { toValue: 0, duration: 80,  useNativeDriver: true }),
       Animated.timing(cardOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
     ]).start();
   }, [activeSegment, tabLayouts]);
 
-  // Aktif segment'in konfigürasyonu — bakiye kartı bunu kullanacak
   const seg = SEGMENT_CONFIG[activeSegment];
 
-  // TX filter — gelir/gider'e göre filtrele
   const filteredTx = TRANSACTIONS.filter(tx =>
     activeTxFilter === 0 ? true :
     activeTxFilter === 1 ? tx.type === 'in' :
@@ -170,13 +149,6 @@ export default function HomeScreen() {
         </View>
 
         {/* ── SEGMENT TABS ── */}
-        {/*
-          Burada ilginç bir teknik kullanıyoruz:
-          Animated.View ile "pill" (mor arka plan) tab'ların arkasında
-          position:absolute olarak duruyor. Her tab tıklandığında
-          Animated.spring ile kaydırıyoruz. useNativeDriver:false çünkü
-          width animasyonu JS thread'de çalışmak zorunda.
-        */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -207,17 +179,6 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* ── BAKİYE KARTI ── */}
-        {/*
-          LinearGradient — expo-linear-gradient paketi.
-          colors prop array alır: başlangıç → bitiş rengi.
-          start/end ile gradient'in yönünü belirleyebilirsin.
-          Burada sol-üstten sağ-alta doğru mor gradient.
-        */}
-        {/*
-          Animated.View opacity ile sarıyoruz → fade efekti
-          key prop YOK → React kartı unmount etmez, sadece opacity değişir
-          Bu çok daha hızlı çünkü native thread'de çalışıyor
-        */}
         <Animated.View style={{ opacity: cardOpacity }}>
         <LinearGradient
           colors={seg.gradient}
@@ -266,11 +227,6 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* ── HIZLI İŞLEMLER ── */}
-        {/*
-          Dört buton: Gönder, Al, Takas, Daha Fazla.
-          Her birinin arka planı biraz farklı renk (o ikona özel).
-          İkon rengini IconBox'ta görüyorsun.
-        */}
         <View style={s.sectionRow}>
           <Text style={s.sectionTitle}>Hızlı İşlemler</Text>
         </View>
@@ -313,49 +269,7 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* ── VARLIK DAĞILIMI ── */}
-        {/*
-          react-native-gifted-charts'tan PieChart kullanıyoruz.
-          donut prop'u ile ortası boş halkaya dönüşür.
-          radius, innerRadius ile boyutu ayarlarsın.
-          centerLabelComponent ile ortaya istediğin component'i koyarsın.
-        */}
-        <View style={[s.sectionRow, { marginTop: 24 }]}>
-          <Text style={s.sectionTitle}>Varlık Dağılımı</Text>
-        </View>
-        <View style={s.pieCard}>
-          <PieChart
-            donut
-            data={PIE_DATA}
-            radius={90}
-            innerRadius={60}
-            innerCircleColor={colors.surface1}
-            centerLabelComponent={() => (
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ color: colors.text2, fontSize: 11 }}>Toplam</Text>
-                <Text style={{ color: colors.text1, fontSize: 15, fontWeight: '700' }}>
-                  ₺ 12.450
-                </Text>
-              </View>
-            )}
-          />
-          {/* Legend */}
-          <View style={s.pieLegend}>
-            {PIE_DATA.map(d => (
-              <View key={d.label} style={s.legendRow}>
-                <View style={[s.legendDot, { backgroundColor: d.color }]} />
-                <Text style={s.legendLabel}>{d.label}</Text>
-                <Text style={s.legendValue}>{d.value}%</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
         {/* ── SON İŞLEMLER ── */}
-        {/*
-          Filter tabs — activeTxFilter state'i ile filteredTx array'ini değiştiriyoruz.
-          Bu sefer pill animasyonu yok, sadece renk değişimi — daha basit seçtik.
-        */}
         <View style={[s.sectionRow, { marginTop: 24 }]}>
           <Text style={s.sectionTitle}>Son İşlemler</Text>
           <TouchableOpacity style={s.seeAll}>
@@ -386,7 +300,6 @@ export default function HomeScreen() {
               key={tx.id}
               style={[s.txRow, i < filteredTx.length - 1 && s.txRowBorder]}
             >
-              {/* Sol ikon */}
               <View style={[
                 s.txIcon,
                 { backgroundColor: tx.type === 'in' ? colors.success + '22' : colors.error + '22' }
@@ -397,13 +310,11 @@ export default function HomeScreen() {
                 }
               </View>
 
-              {/* Başlık + alt yazı */}
               <View style={s.txInfo}>
                 <Text style={s.txTitle}>{tx.title}</Text>
                 <Text style={s.txSubtitle}>{tx.subtitle} · {tx.date}</Text>
               </View>
 
-              {/* Tutar */}
               <Text style={[
                 s.txAmount,
                 { color: tx.type === 'in' ? colors.success : colors.error }
@@ -414,17 +325,12 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* Alt boşluk — floating button için */}
+        {/* Alt boşluk */}
         <View style={{ height: 100 }} />
 
       </ScrollView>
 
       {/* ── FLOATING AI BUTTON ── */}
-      {/*
-        ScrollView dışında, SafeAreaView içinde ve position:absolute.
-        Bu sayede scroll ederken buton sabit kalır (floating).
-        Bottom değerini platform safe area'ya göre ayarlıyoruz.
-      */}
       <TouchableOpacity style={s.fab}>
         <LinearGradient
           colors={['#7C3AED', '#A855F7']}
@@ -470,11 +376,6 @@ const s = StyleSheet.create({
   balanceChangeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 16 },
   balanceChange:    { color: '#86EFAC', fontSize: 13, fontWeight: '500' },
   balanceDivider:   { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginBottom: 16 },
-  balanceStats:     { flexDirection: 'row', gap: 32 },
-  balanceStat:      { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  statIconBox:      { width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(134,239,172,0.2)', alignItems: 'center', justifyContent: 'center' },
-  statLabel:        { color: 'rgba(255,255,255,0.6)', fontSize: 12 },
-  statValue:        { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   // Section header
   sectionRow:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
@@ -497,14 +398,6 @@ const s = StyleSheet.create({
   rateValue:     { color: colors.text1, fontSize: 14, fontWeight: '600' },
   rateBadge:     { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   rateChange:    { fontSize: 12, fontWeight: '600' },
-
-  // Pie chart
-  pieCard:    { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 20, alignItems: 'center' },
-  pieLegend:  { marginTop: 20, width: '100%', gap: 10 },
-  legendRow:  { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  legendDot:  { width: 10, height: 10, borderRadius: 5 },
-  legendLabel:{ flex: 1, color: colors.text2, fontSize: 13 },
-  legendValue:{ color: colors.text1, fontSize: 13, fontWeight: '600' },
 
   // Transactions
   txFilters:        { flexDirection: 'row', gap: 8, marginBottom: 12 },
