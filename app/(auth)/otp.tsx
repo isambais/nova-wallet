@@ -60,7 +60,9 @@ export default function OTPScreen() {
     iban: generateMockIban(),   // her yeni kullanıcıya unique IBAN
   });
 
-  if (mode === 'register') {
+  // mode'a güvenmek yerine store'u kontrol et — daha güvenilir
+  const hasPin = !!useAuthStore.getState().pin;
+  if (!hasPin) {
     router.replace({ pathname: '/(auth)/pin', params: { pinMode: 'create' } });
   } else {
     router.replace('/(tabs)/home');
