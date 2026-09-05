@@ -25,8 +25,9 @@ const DEMO_CODE  = '123456';
 export default function OTPScreen() {
   const router = useRouter();
   const setUser = useAuthStore((s) => s.setUser);
+  const setPin  = useAuthStore((s) => s.setPin);
   const { mode, method, target } = useLocalSearchParams<{
-    mode?: 'login' | 'register';
+    mode?: 'login' | 'register' | 'forgot-pin';
     method?: 'phone' | 'email';
     target?: string;
   }>();
@@ -50,6 +51,14 @@ export default function OTPScreen() {
     setError('Kod hatalı. Demo kod: 123456');
     return;
   }
+  if (mode === 'forgot-pin') {
+    // Mevcut kullanıcıyı koru — sadece PIN'i sıfırla ve yeniden oluştur
+    setPin('');
+    router.replace({ pathname: '/(auth)/pin', params: { pinMode: 'create' } });
+    return;
+  }
+
+  // Login veya kayıt — kullanıcıyı kaydet
   setUser({
     id: '1',
     name: 'Isam Bais',
@@ -57,10 +66,10 @@ export default function OTPScreen() {
     language: 'tr',
     currency: 'TRY',
     balance: 0,
-    iban: generateMockIban(),   // her yeni kullanıcıya unique IBAN
+    iban: generateMockIban(),
   });
 
-  // mode'a güvenmek yerine store'u kontrol et — daha güvenilir
+  // PIN var mı kontrol et (store'a direkt bak — daha güvenilir)
   const hasPin = !!useAuthStore.getState().pin;
   if (!hasPin) {
     router.replace({ pathname: '/(auth)/pin', params: { pinMode: 'create' } });
@@ -90,6 +99,8 @@ export default function OTPScreen() {
           maxLength={OTP_LENGTH}
           style={s.hiddenInput}
           autoFocus
+          showSoftInputOnFocus
+          caretHidden
         />
 
         {/* Geri */}
@@ -109,10 +120,10 @@ export default function OTPScreen() {
           <Text style={s.sub}>{subtitle}</Text>
           {target ? <Text style={s.subAccent}>{target}</Text> : null}
 
-          {/* OTP kutularına basınca klavye açılır */}
+          {/* OTP kutularına basınca klavye açılır — blur→focus gerekli */}
           <TouchableOpacity
             activeOpacity={1}
-            onPress={() => inputRef.current?.focus()}
+            onPress={() => { inputRef.current?.blur(); setTimeout(() => inputRef.current?.focus(), 50); }}
           >
             <OTPBox
               length={OTP_LENGTH}
@@ -146,6 +157,7 @@ const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: A.bg },
   hiddenInput: {
     position: 'absolute',
+    left: -9999,
     opacity: 0,
     width: 1,
     height: 1,

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, Pressable,
-  TextInput, KeyboardAvoidingView, Platform, Modal,
+  View, Text, TouchableOpacity, StyleSheet,
+  TextInput, ScrollView, Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -22,11 +22,18 @@ export default function PinScreen() {
   const [showSwitchModal, setShowSwitchModal] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  // Android'de autoFocus güvenilir değil — mount'tan 300ms sonra zorla focus
+  // Android'de autoFocus güvenilir değil — mount'tan sonra zorla focus
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 300);
     return () => clearTimeout(t);
   }, []);
+
+  // Android'de klavye back ile kapatıldığında TextInput "odaklı" sanır ama
+  // klavye gizlidir. Sadece focus() çağırmak işe yaramaz — blur → focus gerekir.
+  function openKeyboard() {
+    inputRef.current?.blur();
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }
 
   function handleChange(text: string) {
     const clean = text.replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
@@ -50,7 +57,6 @@ export default function PinScreen() {
       return;
     }
 
-    // create mode
     if (step === 'first') {
       setFirstPin(value);
       setLocalPin('');
@@ -70,10 +76,7 @@ export default function PinScreen() {
     }
   }
 
-  // Kullanıcı değiştir — önce onay modalı göster
-  function handleSwitchUser() {
-    setShowSwitchModal(true);
-  }
+  function handleSwitchUser() { setShowSwitchModal(true); }
 
   function confirmSwitchUser() {
     setShowSwitchModal(false);
@@ -81,7 +84,6 @@ export default function PinScreen() {
     router.replace('/');
   }
 
-  // Şifremi unuttum — dedicated forgot-pin ekranına yönlendir
   function handleForgotPin() {
     router.push('/(auth)/forgot-pin');
   }
@@ -96,31 +98,44 @@ export default function PinScreen() {
       ? 'Hesabını korumak için\n6 haneli bir PIN belirle'
       : "Aynı PIN'i tekrar gir";
 
-  // Kullanıcı baş harfleri (avatar için)
   const initials = user?.name
     ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : '?';
 
   return (
     <SafeAreaView style={s.safe}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <TextInput
-          ref={inputRef}
-          value={pin}
-          onChangeText={handleChange}
-          inputMode="numeric"
-          maxLength={PIN_LENGTH}
-          style={s.hiddenInput}
-          autoFocus
-          secureTextEntry
-        />
+      {/*
+        Gizli TextInput: Sistem klavyesini açan asıl input.
+        - left:-9999 → tamamen ekran dışı, görünmez
+        - showSoftInputOnFocus → Android'de klavyeyi açmaya zorlar (kritik!)
+        - caretHidden → imleç gösterilmez
+        - onBlur → focus kaybedilince hemen geri al
+      */}
+      <TextInput
+        ref={inputRef}
+        value={pin}
+        onChangeText={handleChange}
+        inputMode="numeric"
+        maxLength={PIN_LENGTH}
+        style={s.hiddenInput}
+        autoFocus
+        showSoftInputOnFocus
+        caretHidden
+      />
 
-        {/* Tüm ekrana basınca klavye açılsın */}
-        <Pressable style={s.body} onPress={() => inputRef.current?.focus()}>
-          {/* Enter mode → kullanıcı avatarı; Create mode → N logosu */}
+      {/*
+        keyboardShouldPersistTaps="always" → içerideki butonlara basınca
+        klavye kapanmaz, onPress düzgün çalışır
+      */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="always"
+        scrollEnabled={false}
+      >
+        <View style={s.body}>
+
+          {/* Avatar veya Logo */}
           {pinMode === 'enter' && user ? (
             <View style={s.avatarWrap}>
               <View style={s.avatar}>
@@ -137,8 +152,8 @@ export default function PinScreen() {
           <Text style={s.title}>{title}</Text>
           <Text style={s.sub}>{subtitle}</Text>
 
-          {/* Modern segment kutuları */}
-          <View style={s.segments}>
+          {/* Segment kutularına basınca klavye zorla açılır */}
+          <TouchableOpacity activeOpacity={1} onPress={openKeyboard} style={s.segments}>
             {Array.from({ length: PIN_LENGTH }).map((_, i) => {
               const filled = i < pin.length;
               const active = i === pin.length;
@@ -151,11 +166,14 @@ export default function PinScreen() {
                     active && s.segmentActive,
                   ]}
                 >
-                  {filled && <View style={s.segmentDot} />}
+                  {filled
+                    ? <View style={s.segmentDot} />
+                    : active && <View style={s.segmentCursor} />
+                  }
                 </View>
               );
             })}
-          </View>
+          </TouchableOpacity>
 
           {error ? <Text style={s.error}>{error}</Text> : null}
 
@@ -180,10 +198,11 @@ export default function PinScreen() {
               </TouchableOpacity>
             </View>
           )}
-        </Pressable>
-      </KeyboardAvoidingView>
 
-      {/* Kullanıcı Değiştir — Onay Modalı */}
+        </View>
+      </ScrollView>
+
+      {/* Kullanıcı Değiştir Modalı */}
       <Modal
         visible={showSwitchModal}
         transparent
@@ -216,8 +235,16 @@ export default function PinScreen() {
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  hiddenInput: { position: 'absolute', top: -200, left: 0, width: 100, height: 40, opacity: 0 },
-  body: { flex: 1, paddingHorizontal: 24, paddingTop: 48, alignItems: 'center' },
+
+  // Tamamen ekran dışında — klavye açık kalır
+  hiddenInput: { position: 'absolute', left: -9999, opacity: 0, width: 1, height: 1 },
+
+  body: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    alignItems: 'center',
+  },
 
   // Create mode logo
   logoWrap: {
@@ -243,9 +270,10 @@ const s = StyleSheet.create({
   avatarTxt: { color: '#fff', fontSize: 22, fontWeight: '800' },
   userName: { color: colors.text1, fontSize: 15, fontWeight: '600' },
 
-  title:    { color: colors.text1, fontSize: 24, fontWeight: '700', marginBottom: 10, letterSpacing: -0.5 },
-  sub:      { color: colors.text2, fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 40 },
-  // Modern segment kutuları
+  title: { color: colors.text1, fontSize: 24, fontWeight: '700', marginBottom: 10, letterSpacing: -0.5 },
+  sub:   { color: colors.text2, fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 40 },
+
+  // Segment kutuları
   segments: { flexDirection: 'row', gap: 10, marginBottom: 20 },
   segment: {
     width: 44, height: 54, borderRadius: 14,
@@ -254,45 +282,33 @@ const s = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   segmentFilled: {
-    backgroundColor: colors.purple,
-    borderColor: colors.purple,
-    shadowColor: colors.purple,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 10, elevation: 6,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   segmentActive: {
     borderColor: colors.purpleLight,
     borderWidth: 2,
     backgroundColor: 'rgba(139,92,246,0.08)',
     shadowColor: colors.purple,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4, shadowRadius: 12, elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4, shadowRadius: 12,
   },
-  segmentDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: '#fff',
-  },
-  error:      { color: colors.error, fontSize: 13, textAlign: 'center', marginTop: 16 },
-  backLink:   { color: colors.text2, fontSize: 13, textAlign: 'center', marginTop: 20 },
-  bottomLinks:{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 32 },
-  linkText:   { color: colors.purpleLight, fontSize: 13, fontWeight: '500' },
-  separator:  { color: colors.text3, fontSize: 16 },
+  segmentDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#fff' },
+  segmentCursor: { width: 2, height: 26, borderRadius: 1, backgroundColor: colors.purpleLight },
+
+  error:       { color: colors.error, fontSize: 13, textAlign: 'center', marginTop: 16 },
+  backLink:    { color: colors.text2, fontSize: 13, textAlign: 'center', marginTop: 20 },
+  bottomLinks: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 32 },
+  linkText:    { color: colors.purpleLight, fontSize: 13, fontWeight: '500' },
+  separator:   { color: colors.text3, fontSize: 16 },
 
   // Modal
   modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32,
   },
   modalCard: {
-    backgroundColor: colors.surface2,
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surface2, borderRadius: 20,
+    padding: 24, width: '100%', borderWidth: 1, borderColor: colors.border,
   },
   modalTitle:      { color: colors.text1, fontSize: 17, fontWeight: '700', marginBottom: 10, textAlign: 'center' },
   modalMsg:        { color: colors.text2, fontSize: 14, lineHeight: 22, textAlign: 'center', marginBottom: 24 },
