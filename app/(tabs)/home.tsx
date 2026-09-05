@@ -12,6 +12,8 @@ import {
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
   TrendingUp, TrendingDown, Bot, ChevronRight, Copy,
   ArrowLeftRight, SlidersHorizontal, Check, X,
+  FileText, ArrowDownLeft, Upload, List, Gem, Target, Snowflake,
+  Heart, Users,
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -62,6 +64,23 @@ const QUICK_ACTIONS = [
   { id: 'more',  Icon: LayoutGrid,       label: 'Daha Fazla', color: '#7A8BA8' },
 ];
 
+// ─── DAHA FAZLA EKLENTİLERİ ────────────────────────────────────────
+const MORE_ACTIONS = [
+  { id: 'fatura',  Icon: FileText,       label: 'Fatura Öde',     color: '#7C3AED', destructive: false },
+  { id: 'iste',    Icon: ArrowDownLeft,  label: 'Para İste',      color: '#10B981', destructive: false },
+  { id: 'yukle',   Icon: Upload,         label: 'Yükle',          color: '#F59E0B', destructive: false },
+  { id: 'tal',     Icon: List,           label: 'Talimatlar',     color: '#06B6D4', destructive: false },
+  { id: 'altin',   Icon: Gem,            label: 'Altın Al',       color: '#D97706', destructive: false },
+  { id: 'yatirim', Icon: TrendingUp,     label: 'Yatırım',        color: '#3B82F6', destructive: false },
+  { id: 'birikim', Icon: Target,         label: 'Birikim Hedefi', color: '#8B5CF6', destructive: false },
+  { id: 'freeze',  Icon: Snowflake,      label: 'Kartı Dondur',   color: '#EF4444', destructive: true  },
+];
+
+const MORE_SECONDARY = [
+  { id: 'bagis', Icon: Heart, label: 'Bağış Yap' },
+  { id: 'davet', Icon: Users, label: 'Arkadaşını Davet Et' },
+];
+
 const EXCHANGE_RATES = [
   { pair: 'USD / TRY', rate: '32,45', change: '+0,12%', up: true  },
   { pair: 'EUR / TRY', rate: '35,10', change: '-0,05%', up: false },
@@ -75,6 +94,7 @@ export default function HomeScreen() {
   const [activeSegment, setActiveSegment]   = useState(0);
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
   const [modeModalVisible, setModeModal]    = useState(false);
+  const [moreModalVisible, setMoreModal]    = useState(false);
 
   const user              = useAuthStore((s) => s.user);
   const activeCurrency    = useAccountStore((s) => s.activeCurrency);
@@ -92,10 +112,10 @@ export default function HomeScreen() {
 
   const handleQuickAction = (id: string) => {
     if (id === 'modes') setModeModal(true);
+    if (id === 'more')  setMoreModal(true);
   };
 
   const handleSelectMode = (mode: SpendingMode) => {
-    // Aynı mod tekrar seçilirse kaldır
     if (activeMode?.id === mode.id) {
       setMode(null);
     } else {
@@ -309,8 +329,6 @@ export default function HomeScreen() {
       <Modal visible={modeModalVisible} transparent animationType="slide" onRequestClose={() => setModeModal(false)}>
         <Pressable style={s.modalOverlay} onPress={() => setModeModal(false)}>
           <Pressable style={s.modalCard} onPress={e => e.stopPropagation()}>
-
-            {/* Modal başlık */}
             <View style={s.modalHeader}>
               <Text style={s.modalTitle}>Harcama Modu</Text>
               <TouchableOpacity style={s.modalCloseBtn} onPress={() => setModeModal(false)}>
@@ -319,7 +337,6 @@ export default function HomeScreen() {
             </View>
             <Text style={s.modalSubtitle}>Modunu seç, limitini belirle</Text>
 
-            {/* 2×2 mod grid */}
             <View style={s.modeGrid}>
               {SPENDING_MODES.map(mode => {
                 const isActive = activeMode?.id === mode.id;
@@ -334,32 +351,77 @@ export default function HomeScreen() {
                     onPress={() => handleSelectMode(mode)}
                     activeOpacity={0.8}
                   >
-                    {/* Aktif işareti */}
                     {isActive && (
                       <View style={[s.modeCheckBadge, { backgroundColor: mode.color }]}>
                         <Check size={10} color="#fff" strokeWidth={3} />
                       </View>
                     )}
-
                     <Text style={s.modeCardEmoji}>{mode.emoji}</Text>
                     <Text style={[s.modeCardName, { color: mode.color }]}>{mode.name}</Text>
-                    <Text style={s.modeCardLimit}>
-                      Günlük ₺{mode.dailyLimit.toLocaleString('tr-TR')}
-                    </Text>
-                    <Text style={s.modeCardWarning} numberOfLines={2}>
-                      {mode.warningText}
-                    </Text>
+                    <Text style={s.modeCardLimit}>Günlük ₺{mode.dailyLimit.toLocaleString('tr-TR')}</Text>
+                    <Text style={s.modeCardWarning} numberOfLines={2}>{mode.warningText}</Text>
                   </TouchableOpacity>
                 );
               })}
             </View>
 
-            {/* Modu kapat */}
             {activeMode && (
               <TouchableOpacity style={s.clearModeBtn} onPress={() => { setMode(null); setModeModal(false); }}>
                 <Text style={s.clearModeBtnText}>Modu Kapat</Text>
               </TouchableOpacity>
             )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* ── DAHA FAZLA MODALI ── */}
+      <Modal visible={moreModalVisible} transparent animationType="slide" onRequestClose={() => setMoreModal(false)}>
+        <Pressable style={s.modalOverlay} onPress={() => setMoreModal(false)}>
+          <Pressable style={s.modalCard} onPress={e => e.stopPropagation()}>
+
+            {/* Başlık */}
+            <View style={s.modalHeader}>
+              <Text style={s.modalTitle}>Tüm İşlemler</Text>
+              <TouchableOpacity style={s.modalCloseBtn} onPress={() => setMoreModal(false)}>
+                <X size={18} color={colors.text2} strokeWidth={2} />
+              </TouchableOpacity>
+            </View>
+
+            {/* 4×2 grid */}
+            <View style={s.moreGrid}>
+              {MORE_ACTIONS.map(({ id, Icon, label, color, destructive }) => (
+                <TouchableOpacity key={id} style={s.moreItem} activeOpacity={0.7}>
+                  <View style={[
+                    s.moreIconBox,
+                    { backgroundColor: color + '18', borderColor: color + '33' },
+                    destructive && s.moreIconBoxDestructive,
+                  ]}>
+                    <Icon size={22} color={color} strokeWidth={1.8} />
+                  </View>
+                  <Text style={[s.moreItemLabel, destructive && s.moreItemLabelDestructive]}>
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* ── Ayırıcı ── */}
+            <View style={s.moreDivider} />
+
+            {/* Bağış & Davet — küçük satırlar */}
+            {MORE_SECONDARY.map(({ id, Icon, label }, i) => (
+              <TouchableOpacity
+                key={id}
+                style={[s.moreSecRow, i < MORE_SECONDARY.length - 1 && s.moreSecRowBorder]}
+                activeOpacity={0.7}
+              >
+                <View style={s.moreSecIconBox}>
+                  <Icon size={16} color={colors.text3} strokeWidth={1.8} />
+                </View>
+                <Text style={s.moreSecLabel}>{label}</Text>
+                <ChevronRight size={14} color={colors.text3} strokeWidth={2} />
+              </TouchableOpacity>
+            ))}
 
           </Pressable>
         </Pressable>
@@ -409,14 +471,12 @@ const s = StyleSheet.create({
   seeAll:       { flexDirection: 'row', alignItems: 'center', gap: 2 },
   seeAllText:   { color: colors.purpleLight, fontSize: 13, fontWeight: '500' },
 
-  // Hızlı işlemler — 5 item
   actionsRow:    { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
   actionItem:    { alignItems: 'center', gap: 6, flex: 1 },
   actionIconBox: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
   actionLabel:   { color: colors.text2, fontSize: 11, fontWeight: '500', textAlign: 'center' },
   actionEmoji:   { fontSize: 20 },
 
-  // Aktif mod banner
   modeBanner:     { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 14, borderWidth: 1, padding: 12, marginBottom: 24 },
   modeEmoji:      { fontSize: 22 },
   modeBannerInfo: { flex: 1, gap: 2 },
@@ -440,15 +500,15 @@ const s = StyleSheet.create({
   fab:         { position: 'absolute', bottom: 24, right: 24, borderRadius: 30, elevation: 8, shadowColor: colors.purple, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12 },
   fabGradient: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
 
-  // Mod modal
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalCard:    { backgroundColor: colors.surface1, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 20, paddingBottom: 40, paddingHorizontal: 20, borderWidth: 1, borderColor: colors.border },
-  modalHeader:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
-  modalTitle:   { color: colors.text1, fontSize: 18, fontWeight: '800' },
-  modalCloseBtn:{ width: 32, height: 32, borderRadius: 10, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
-  modalSubtitle:{ color: colors.text3, fontSize: 13, marginBottom: 20 },
+  // ─── Ortak modal ───
+  modalOverlay:  { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalCard:     { backgroundColor: colors.surface1, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 20, paddingBottom: 40, paddingHorizontal: 20, borderWidth: 1, borderColor: colors.border },
+  modalHeader:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  modalTitle:    { color: colors.text1, fontSize: 18, fontWeight: '800' },
+  modalCloseBtn: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  modalSubtitle: { color: colors.text3, fontSize: 13, marginBottom: 20 },
 
-  // Mod kartları
+  // ─── Mod kartları ───
   modeGrid:       { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 8 },
   modeCard:       { width: '47%', borderRadius: 18, borderWidth: 1.5, padding: 16, gap: 4, position: 'relative' },
   modeCardActive: { borderWidth: 2 },
@@ -457,7 +517,21 @@ const s = StyleSheet.create({
   modeCardName:   { fontSize: 15, fontWeight: '800' },
   modeCardLimit:  { color: colors.text2, fontSize: 12, fontWeight: '600' },
   modeCardWarning:{ color: colors.text3, fontSize: 11, lineHeight: 15, marginTop: 4 },
-
   clearModeBtn:     { marginTop: 16, alignItems: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border },
   clearModeBtnText: { color: colors.text2, fontSize: 14, fontWeight: '600' },
+
+  // ─── Daha Fazla grid ───
+  moreGrid:                 { flexDirection: 'row', flexWrap: 'wrap', marginTop: 16, marginBottom: 4 },
+  moreItem:                 { width: '25%', alignItems: 'center', paddingVertical: 12, gap: 6 },
+  moreIconBox:              { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  moreIconBoxDestructive:   { borderColor: '#EF444433', backgroundColor: '#EF444414' },
+  moreItemLabel:            { color: colors.text2, fontSize: 11, fontWeight: '500', textAlign: 'center' },
+  moreItemLabelDestructive: { color: '#EF4444' },
+
+  // ─── Daha Fazla ayırıcı & ikincil satırlar ───
+  moreDivider:      { height: 1, backgroundColor: colors.border, marginVertical: 12 },
+  moreSecRow:       { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  moreSecRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  moreSecIconBox:   { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  moreSecLabel:     { flex: 1, color: colors.text2, fontSize: 14, fontWeight: '500' },
 });
