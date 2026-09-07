@@ -1,69 +1,12 @@
-Bu bağlantı bende “Page not found” olarak açılıyor; muhtemelen Claude hesabına özel veya paylaşımı kapalı.
-
-README’yi aynı tasarımla hazırlamam için bana şunlardan birini gönder:
-
-README’nin tam ekran görüntülerini, veya
-Claude’daki kodu/Markdown içeriğini buraya kopyala.
-
-Bir de projenin GitHub linkini gönderirsen içerikleri projene göre profesyonel şekilde düzenleyip sana doğrudan yapıştırabileceğin eksiksiz README.md vereyim.
-
-Pasted markdown(1).md
-File
-
-Hazır. README’yi profesyonel ve tamamen GitHub uyumlu hâle getirdim:
-
-README.md dosyasını aç / indir
-
-GitHub’daki mevcut 
-README.md içeriğini silip bu dosyanın tamamını yapıştırabilirsin.
-
-Ekran görüntülerinin görünmesi için şu dosyaları eklemelisin:
-
-docs/screenshots/auth.png
-docs/screenshots/wallet.png
-docs/screenshots/simulator.png
-
-Mermaid diyagramları, rozetler, tablolar, kurulum kodları ve tüm bağlantılar GitHub’da düzgün çalışacak şekilde düzenlendi.
-
-README.md
-Document
-diyagram cizilmesini istiyorum ve emojiler istemiyorum ve daha profesyonel ve yailara dikkat et ve herseye dikkat et
-
-README tamamen güncellendi:
-
-Tüm emojiler kaldırıldı.
-Metinler profesyonel Türkçeyle yeniden düzenlendi.
-Teknik terimler tutarlı hâle getirildi.
-GitHub’da görsel olarak çizilecek 6 Mermaid diyagramı eklendi:
-Katmanlı sistem mimarisi
-Kimlik doğrulama akışı
-Zustand durum yönetimi
-Harcama simülasyonu
-Uygulama navigasyonu
-Veritabanı ilişkileri
-
-Güncel dosya: 
-README.md
-
-Dosyanın tamamını GitHub’daki 
-README.md içine yapıştırdığında diyagramlar otomatik olarak çizilecektir.
-
-README.md
-Document
-
-Library
-/
-README.md
-
 <div align="center">
+
+<img src="./assets/icon.png" width="112" alt="NOVA Wallet logo" />
 
 NOVA Wallet
-Yapay zekâ destekli, çok dilli kişisel finans asistanı
 
-Harcamadan önce bütçe etkisini analiz eden, ortak finans yönetimini kolaylaştıran ve kişiselleştirilmiş içgörüler sunan React Native MVP prototipi.
+Çok dilli, karar destek odaklı kişisel finans uygulaması
 
-
-
+React Native ve Expo ile geliştirilen NOVA Wallet; bütçe farkındalığı, ortak finans yönetimi ve yapay zekâ destekli finansal içgörüler sunmayı hedefleyen bir mobil uygulama prototipidir.
 
 
 
@@ -71,235 +14,85 @@ Harcamadan önce bütçe etkisini analiz eden, ortak finans yönetimini kolayla�
 
 
 
-
-
-
-
-Genel Bakış |
-Özellikler |
-Mimari |
-Teknolojiler |
-Kurulum |
-Güvenlik
+Proje Hakkında · Mevcut Durum · Mimari · Teknolojiler · Kurulum · Yol Haritası
 
 </div>
 
-Genel Bakış
+Proje Hakkında
 
-NOVA Wallet, geleneksel bankacılık uygulamalarındaki pasif işlem takibinin ötesine geçerek kullanıcının harcamadan önce düşünmesini sağlayan bir kişisel finans asistanıdır.
+NOVA Wallet, kullanıcıların yalnızca geçmiş işlemlerini takip etmesini değil, gelecekte verecekleri finansal kararların olası etkilerini de değerlendirmesini amaçlar. Uygulamanın temel yaklaşımı, işlem merkezli bir cüzdan deneyimini karar destek mekanizmalarıyla birleştirmektir.
 
-Proje üç temel fikir üzerine kurulmuştur:
+Proje üç temel problem alanına odaklanır:
 
-Bir satın alma gerçekleşmeden önce bütçeye etkisini simüle etmek
-Ortak bütçeleri birden fazla kullanıcıyla birlikte yönetmek
-Harcama alışkanlıkları hakkında yapay zekâ destekli, bağlamsal içgörüler sunmak
+Problem	NOVA Wallet yaklaşımı
+Harcama kararlarının bütçeye etkisinin önceden görülememesi	Planlanan harcamayı gerçekleşmeden önce analiz eden “Alırsam Ne Olur?” simülatörü
+Ortak masrafların dağınık biçimde yönetilmesi	Katkı ve hedef takibi sunan grup cüzdanları
+Finansal verilerin bağlamdan yoksun olması	Harcama örüntülerini yorumlayan yapay zekâ destekli içgörüler
 
-Uygulama; karmaşık bankacılık arayüzleri olmadan bilinçli finansal kontrol isteyen genç profesyonelleri ve öğrencileri hedefler. Türkçe, İngilizce ve Arapça dillerini destekler; Arapça için tam RTL düzeni sunar.
+Uygulama Türkçe, İngilizce ve Arapça dillerini hedefler. Arapça arayüz için sağdan sola yerleşim desteği planlanmıştır. Finansal veriler demo verilerinden oluşur; proje gerçek para transferi veya bankacılık işlemi gerçekleştirmez.
 
 [!IMPORTANT]
-NOVA Wallet bir demo prototipidir. Gerçek para işlemi veya KYC doğrulaması yapmaz, gerçek kart çıkarmaz ve herhangi bir finansal mevzuata tabi değildir. İşlemler ile yapay zekâ çıktıları demo verileri kullanır.
+Bu depo bir eğitim ve staj projesidir. Üretim ortamında kullanılabilecek bir bankacılık veya elektronik para ürünü değildir. Gerçek müşteri verisi işlemez ve finansal tavsiye sunmaz.
 
-Ekran Görüntüleri
+Mevcut Durum
 
-<div align="center">
+Depo şu anda temel altyapı aşamasındadır. Aşağıdaki bileşenler doğrudan main dalında bulunmaktadır:
 
-Kimlik Doğrulama	Cüzdan	Harcama Simülatörü
-<img src="docs/screenshots/auth.png" width="240" alt="NOVA Wallet kimlik doğrulama ekranı" />	<img src="docs/screenshots/wallet.png" width="240" alt="NOVA Wallet cüzdan ekranı" />	<img src="docs/screenshots/simulator.png" width="240" alt="NOVA Wallet harcama simülatörü" />
+Bileşen	Durum	Açıklama
+Expo ve React Native kurulumu	Hazır	Expo SDK 57 ve React Native 0.86 yapılandırması
+Dosya tabanlı yönlendirme	Hazır	Expo Router kök düzeni ve başlangıç ekranı
+Stil altyapısı	Hazır	NativeWind ve Tailwind CSS yapılandırması
+Çoklu dil altyapısı	Hazır	Türkçe, İngilizce ve Arapça kaynak dosyaları
+Tip tanımları	Hazır	Kullanıcı, işlem ve para birimi tipleri
+Demo finans verileri	Hazır	Kullanıcı ve işlem örnekleri
+Uygulama ekranları	Geliştirilecek	Kimlik doğrulama, cüzdan, analitik ve sosyal finans ekranları
+Arka uç servisi	Geliştirilecek	Yapay zekâ istekleri için Node.js ve Express proxy katmanı
 
-</div>
+Planlanan özellikler ile tamamlanmış özelliklerin ayrımı, projenin mevcut teknik durumunu doğru yansıtmak amacıyla açık tutulmuştur.
 
-Ekran görüntülerinin gösterilmesi için görselleri docs/screenshots/ klasörüne auth.png, wallet.png ve simulator.png adlarıyla ekleyin.
+Hedef Mimari
 
-Özellikler
-Kimlik Doğrulama
-Telefon numarasıyla demo giriş akışı
-Altı haneli OTP doğrulaması
-Dört haneli PIN oluşturma ve giriş
-expo-secure-store ile güvenli yerel saklama
-Giriş, kayıt ve şifremi unuttum akışları
-Oturum durumuna göre otomatik rota koruması
-Akıllı Cüzdan
-TRY, USD ve EUR bakiyelerini görüntüleme
-Bakiyeyi gizleme ve gösterme
-Hesaplar arasında hızlı döviz geçişi
-Gönder, al, takas ve diğer hızlı işlemler
-Öğrenci, Tatil, Sıkı Tasarruf ve Gece Çıkışı harcama modları
-Animasyonlu segmentler ve geçişli arayüzler
-What If Simülatörü
+Aşağıdaki diyagram, MVP tamamlandığında ulaşılması planlanan katmanlı yapıyı gösterir.
 
-NOVA Wallet'ın temel ayrıştırıcısı olan simülatör, planlanan bir harcamanın etkisini işlem gerçekleşmeden önce analiz eder.
-
-Girdi	Üretilen sonuç
-Harcama tutarı	İşlem sonrası kalan bakiye
-Harcama kategorisi	Kullanılan bütçe yüzdesi
-Aktif harcama modu	Düşük, orta veya yüksek risk seviyesi
-Güncel finansal durum	Bağlamsal kısa açıklama
-Sosyal Finans
-Katılımcı bazlı grup cüzdanları
-Ortak hedef ve katkı takibi
-Kişisel tasarruf hedefleri
-Yapay zekâ destekli haftalık katkı stratejisi
-Tekrarlayan ödeme ve abonelik tespiti
-Analitik
-Kategori bazlı aylık harcama özeti
-Para akışı takvimi
-Yaş grubuna göre anonim harcama karşılaştırması
-Bütçe uyumu, tasarruf tutarlılığı ve abonelik yüküne dayalı finansal sağlık skoru
-Yüksek ve düşük harcama günlerinin görselleştirilmesi
-Yapay Zekâ Katmanı
-Finansal sorular için doğal dil copilotu
-Bütçe aşımı ve risk tahmini
-Olağan dışı işlem tespiti
-İş yeri bilgilerinin otomatik kategorilendirilmesi
-Demo fiş tarama ve sesli asistan arayüzü
-Arka uç servisine erişilemediğinde otomatik örnek veri desteği
-Sanal Kartlar
-Standart, tek kullanımlık, tekrarlayan ve iş yerine kilitli kartlar
-Kategori bazlı harcama limitleri
-Kart dondurma ve yeniden etkinleştirme
-Maskelenmiş kart numarası gösterimi
-Sistem Mimarisi
-
-NOVA Wallet, kullanıcı arayüzünü, uygulama durumunu, yerel servisleri ve yapay zekâ servislerini birbirinden ayıran katmanlı bir mimari kullanır. Bu yapı; özelliklerin bağımsız geliştirilmesini, test edilmesini ve gerektiğinde değiştirilmesini kolaylaştırır.
-
-Katmanlı Mimari
 flowchart TB
-    subgraph PRESENTATION[Sunum Katmanı]
-        AUTH_UI[Kimlik Doğrulama]
-        WALLET_UI[Cüzdan]
-        ANALYTICS_UI[Analitik]
-        SOCIAL_UI[Sosyal Finans]
-        AI_UI[Yapay Zekâ Copilotu]
-    end
+    USER["Kullanıcı"] --> APP["React Native Uygulaması"]
+    APP --> ROUTER["Expo Router"]
+    APP --> I18N["i18next ve RTL"]
+    APP --> STATE["Zustand Durum Yönetimi"]
+    APP --> FORMS["React Hook Form ve Zod"]
+    STATE --> LOCAL["SecureStore ve Yerel Veri"]
+    STATE --> MOCK["Demo Finans Verileri"]
+    APP --> API["Node.js ve Express API"]
+    API --> LIMIT["İstek Sınırlama"]
+    LIMIT --> LLM["LLM Servisi"]
+    API -.-> MOCK
 
-    subgraph APPLICATION[Uygulama Katmanı]
-        ROUTER[Expo Router]
-        AUTH_STORE[useAuthStore]
-        ACCOUNT_STORE[useAccountStore]
-        MODE_STORE[useModeStore]
-        FORM_LAYER[React Hook Form ve Zod]
-    end
+Kesik bağlantı, arka uç servisi kullanılamadığında demo veri katmanına geçişi ifade eder.
 
-    subgraph LOCAL[İstemci Servisleri]
-        SECURE_STORE[SecureStore]
-        ASYNC_STORE[AsyncStorage]
-        I18N[i18next ve RTL]
-        MOCK_DATA[Örnek Veri Katmanı]
-    end
-
-    subgraph SERVER[Arka Uç]
-        API[Express API]
-        RATE_LIMIT[İstek Sınırlama]
-        AI_PROXY[LLM Proxy Servisi]
-    end
-
-    PRESENTATION --> APPLICATION
-    APPLICATION --> LOCAL
-    APPLICATION --> API
-    API --> RATE_LIMIT
-    RATE_LIMIT --> AI_PROXY
-    API -. Servis kullanılamıyor .-> MOCK_DATA
-Kimlik Doğrulama Akışı
-flowchart TD
-    START([Uygulama açılışı]) --> SESSION{Geçerli oturum var mı?}
-    SESSION -- Evet --> PIN_REQUIRED{PIN doğrulaması gerekli mi?}
-    SESSION -- Hayır --> PHONE[Telefon numarası girişi]
-    PHONE --> VALIDATE{Numara geçerli mi?}
-    VALIDATE -- Hayır --> PHONE
-    VALIDATE -- Evet --> OTP[OTP doğrulaması]
-    OTP --> OTP_VALID{Kod doğru mu?}
-    OTP_VALID -- Hayır --> OTP
-    OTP_VALID -- Evet --> PIN_EXISTS{PIN kayıtlı mı?}
-    PIN_EXISTS -- Hayır --> CREATE_PIN[PIN oluştur]
-    PIN_EXISTS -- Evet --> ENTER_PIN[PIN gir]
-    PIN_REQUIRED -- Evet --> ENTER_PIN
-    PIN_REQUIRED -- Hayır --> HOME[Ana uygulama]
-    CREATE_PIN --> SECURE[PIN bilgisini güvenli sakla]
-    SECURE --> HOME
-    ENTER_PIN --> PIN_VALID{PIN doğru mu?}
-    PIN_VALID -- Evet --> HOME
-    PIN_VALID -- Hayır --> ENTER_PIN
-    ENTER_PIN -- PIN unutuldu --> RESET[OTP ile PIN sıfırla]
-    RESET --> CREATE_PIN
-Ana Ekran ve Durum Yönetimi
+Hedef Kullanıcı Akışı
 flowchart TB
-    subgraph STORES[Zustand Durum Katmanı]
-        AUTH[useAuthStore]
-        ACCOUNT[useAccountStore]
-        MODE[useModeStore]
-    end
-
-    subgraph HOME[Ana Ekran]
-        HEADER[Başlık ve kullanıcı bilgisi]
-        SEGMENTS[Hesap segmentleri]
-        BALANCE[Bakiye kartı]
-        ACTIONS[Hızlı işlemler]
-        MODE_BANNER[Aktif harcama modu]
-        RECENT[Son işlemler ve döviz bilgileri]
-    end
-
-    subgraph INTERACTIONS[Etkileşim Katmanı]
-        MENU[Menü alt paneli]
-        MODE_MODAL[Harcama modu seçimi]
-        MORE_MODAL[Diğer işlemler]
-        ANIMATION[Animated API]
-    end
-
-    AUTH --> HEADER
-    AUTH --> BALANCE
-    ACCOUNT --> SEGMENTS
-    ACCOUNT --> BALANCE
-    MODE --> MODE_BANNER
-    HEADER --> MENU
-    SEGMENTS --> ANIMATION
-    ACTIONS --> MODE_MODAL
-    ACTIONS --> MORE_MODAL
-    MODE_MODAL --> MODE
-Harcama Simülasyonu
-sequenceDiagram
-    actor User as Kullanıcı
-    participant UI as Simülatör Arayüzü
-    participant Form as Form Doğrulama
-    participant Mode as Harcama Modu
-    participant Engine as Risk Motoru
-
-    User->>UI: Tutar ve kategori girer
-    UI->>Form: Girdileri doğrular
-    alt Girdiler geçersiz
-        Form-->>UI: Alan bazlı hata döndürür
-        UI-->>User: Düzeltme mesajı gösterir
-    else Girdiler geçerli
-        Form->>Mode: Aktif risk eşiklerini ister
-        Mode-->>Engine: Mod ve bütçe sınırlarını gönderir
-        Engine->>Engine: Kalan bakiyeyi ve kullanım oranını hesaplar
-        Engine-->>UI: Risk seviyesi ve açıklama döndürür
-        UI-->>User: Simülasyon sonucunu gösterir
-    end
-Uygulama Navigasyonu
-flowchart TB
-    ROOT[Ana Sekmeler] --> WALLET[Cüzdan]
-    ROOT --> ANALYTICS[Analitik]
-    ROOT --> SOCIAL[Sosyal Finans]
-    ROOT --> COPILOT[Yapay Zekâ Copilotu]
-    ROOT --> CARDS[Kartlar]
-
-    WALLET --> SIMULATOR[Harcama Simülatörü]
-    WALLET --> MODES[Harcama Modları]
-    ANALYTICS --> SUMMARY[Aylık Özet]
-    ANALYTICS --> SCORE[Finansal Sağlık Skoru]
-    SOCIAL --> GROUPS[Grup Cüzdanları]
-    SOCIAL --> GOALS[Tasarruf Hedefleri]
-    SOCIAL --> SUBSCRIPTIONS[Abonelikler]
-    COPILOT --> RISK[Bütçe Risk Tahmini]
-    COPILOT --> ANOMALY[Anomali Tespiti]
-    CARDS --> VIRTUAL[Sanal Kart Yönetimi]
-    CARDS --> LIMITS[Harcama Limitleri]
-Veri Modeli
+    START(["Uygulama Açılışı"]) --> SESSION{"Aktif oturum var mı?"}
+    SESSION -- "Hayır" --> PHONE["Telefon Numarası"]
+    PHONE --> OTP["SMS Doğrulama"]
+    OTP --> PIN["PIN Oluşturma veya Giriş"]
+    PIN --> HOME["Ana Uygulama"]
+    SESSION -- "Evet" --> HOME
+    HOME --> WALLET["Cüzdan"]
+    HOME --> ANALYTICS["Analitik"]
+    HOME --> SOCIAL["Sosyal Finans"]
+    HOME --> AI["Finans Copilotu"]
+    HOME --> CARDS["Sanal Kartlar"]
+    WALLET --> SIMULATOR["Alırsam Ne Olur Simülatörü"]
+    ANALYTICS --> SCORE["Finansal Sağlık Skoru"]
+    SOCIAL --> GROUPS["Grup Cüzdanları"]
+    AI --> RISK["Bütçe Risk Analizi"]
+    CARDS --> LIMITS["Harcama Limitleri"]
+Hedef Veri Modeli
 erDiagram
     USER ||--o{ ACCOUNT : owns
-    USER ||--o{ GROUP_MEMBER : participates
-    USER ||--o{ SUBSCRIPTION : tracks
+    USER ||--o{ GROUP_MEMBER : joins
     USER ||--o{ SAVINGS_GOAL : creates
+    USER ||--o{ SUBSCRIPTION : tracks
     ACCOUNT ||--o{ TRANSACTION : contains
     GROUP_WALLET ||--o{ GROUP_MEMBER : includes
     GROUP_WALLET ||--o{ TRANSACTION : records
@@ -327,7 +120,7 @@ erDiagram
         number amount
         string currency
         string category
-        datetime createdAt
+        string date
     }
 
     GROUP_WALLET {
@@ -344,6 +137,15 @@ erDiagram
         number contribution
     }
 
+    SAVINGS_GOAL {
+        string id PK
+        string userId FK
+        string title
+        number targetAmount
+        number savedAmount
+        string deadline
+    }
+
     SUBSCRIPTION {
         string id PK
         string userId FK
@@ -351,142 +153,111 @@ erDiagram
         number amount
         string billingCycle
     }
-
-    SAVINGS_GOAL {
-        string id PK
-        string userId FK
-        string title
-        number targetAmount
-        number savedAmount
-        date deadline
-    }
+Planlanan MVP Kapsamı
+Alan	Temel işlevler
+Kimlik doğrulama	Telefon numarası, demo SMS kodu, PIN oluşturma ve oturum yönlendirmesi
+Cüzdan	TRY, USD ve EUR bakiyeleri, bakiye gizleme ve hızlı işlemler
+Harcama simülasyonu	İşlem sonrası bakiye, bütçe kullanım oranı ve risk düzeyi
+Sosyal finans	Grup cüzdanları, ortak hedefler ve katkı takibi
+Analitik	Kategori dağılımı, para akışı takvimi ve finansal sağlık skoru
+Yapay zekâ	Finans copilotu, bütçe tahmini, anomali tespiti ve otomatik kategorilendirme
+Sanal kartlar	Kart türleri, kategori limitleri ve kart dondurma işlemleri
+Yerelleştirme	Türkçe, İngilizce, Arapça ve Arapça için sağdan sola arayüz
 Teknoloji Yığını
-Katman	Teknoloji	Açıklama
-Dil	TypeScript	Strict mode ve güçlü tip güvenliği
-Mobil uygulama çatısı	React Native + Expo	iOS ve Android için ortak kod tabanı
-Routing	Expo Router	Dosya tabanlı, tip güvenli yönlendirme
-Stil	NativeWind v4	React Native için Tailwind CSS yaklaşımı
-Durum Yönetimi	Zustand	Özellik alanlarına ayrılmış hafif durum depoları
-Çoklu Dil	i18next + react-i18next	Türkçe, İngilizce ve Arapça
-RTL	React Native I18nManager	Arapça için otomatik sağdan sola düzen
-Grafikler	react-native-gifted-charts	Çizgi, çubuk ve pasta grafikler
-Animasyon	Reanimated + Animated API	Akıcı ekran ve bileşen geçişleri
-Form	React Hook Form + Zod	Şema tabanlı form doğrulaması
-Güvenli Depolama	expo-secure-store	PIN ve kimlik doğrulama verileri
-Yerel Depolama	AsyncStorage	Hassas olmayan kalıcı state
-Arka Uç	Node.js + Express	Yapay zekâ isteklerini yöneten proxy servisi
-Güvenlik	express-rate-limit	IP tabanlı istek sınırlaması
-Test	Jest + React Native Testing Library	Birim ve bileşen testleri
-Proje Yapısı
+
+Bu tablo depodaki güncel package.json dosyasını temel alır.
+
+Alan	Teknoloji	Sürüm veya görev
+Uygulama çatısı	Expo	SDK 57
+Mobil geliştirme	React Native	0.86
+Programlama dili	TypeScript	6.0
+Yönlendirme	Expo Router	Dosya tabanlı navigasyon
+Stil	NativeWind	Tailwind tabanlı React Native stilleri
+Durum yönetimi	Zustand	Global uygulama durumu
+Form yönetimi	React Hook Form	Form durumunun yönetilmesi
+Doğrulama	Zod	Şema tabanlı veri doğrulaması
+Yerelleştirme	i18next ve react-i18next	Dil kaynaklarının yönetilmesi
+Güvenli depolama	expo-secure-store	Hassas yerel veriler
+Animasyon	React Native Reanimated	Arayüz geçişleri ve etkileşimler
+Grafikler	react-native-gifted-charts	Finansal veri görselleştirmeleri
+İkon sistemi	lucide-react-native	Tutarlı arayüz ikonları
+Depo Yapısı
+
+Aşağıdaki yapı yalnızca depoda şu anda bulunan dosya ve klasörleri gösterir.
+
 nova-wallet/
 ├── app/
-│   ├── (auth)/              # Telefon, OTP ve PIN ekranları
-│   │   └── _layout.tsx      # Auth stack navigasyonu
-│   ├── (tabs)/              # Ana sekme ekranları
-│   └── index.tsx            # Kök yönlendirme mantığı
-├── backend/
-│   └── src/
-│       ├── middleware/      # Hız sınırlama ve hata yönetimi
-│       ├── routes/          # Yapay zekâ endpoint'leri
-│       └── services/        # LLM API entegrasyonu
+│   ├── _layout.tsx
+│   └── index.tsx
+├── assets/
+│   ├── icon.png
+│   ├── splash-icon.png
+│   └── android-icon-foreground.png
 ├── src/
-│   ├── components/          # Paylaşılan UI bileşenleri
-│   ├── hooks/               # Özel React hook'ları
-│   ├── data/                # Demo verileri ve test girdileri
-│   ├── i18n/                # Çeviriler: tr, en, ar
-│   ├── services/            # API servis katmanı
-│   ├── store/               # Zustand store tanımları
-│   ├── types/               # Paylaşılan TypeScript tipleri
-│   └── utils/               # Yardımcı fonksiyonlar
-└── docs/
-    ├── screenshots/         # Uygulama ekran görüntüleri
-    └── implementation_plan.md
+│   ├── data/
+│   │   └── mockData.ts
+│   ├── i18n/
+│   │   ├── index.ts
+│   │   └── locales/
+│   │       ├── ar.json
+│   │       ├── en.json
+│   │       └── tr.json
+│   └── types/
+│       ├── global.d.ts
+│       └── index.ts
+├── app.json
+├── global.css
+├── implementation_plan.md
+├── package.json
+├── tailwind.config.js
+└── tsconfig.json
 Kurulum
 Gereksinimler
 Node.js 18 veya üzeri
-npm ya da yarn
-Expo Go veya iOS/Android simülatörü
-Mobil Uygulama
+npm
+Expo Go, Android emülatörü veya iOS simülatörü
+Projeyi Çalıştırma
 git clone https://github.com/isambais/nova-wallet.git
 cd nova-wallet
 npm install
-npx expo start
-Arka Uç Servisi — İsteğe Bağlı
+npm start
 
-Canlı yapay zekâ özelliklerini kullanmak için arka uç servisini başlatın:
+Platforma özel çalıştırma komutları:
 
-cd backend
-npm install
-cp .env.example .env
-npm run dev
-
-.env dosyanıza LLM servis anahtarını ekleyin:
-
-LLM_API_KEY=your_api_key_here
-
-Arka uç servisi çalışmadığında uygulama kullanılmaya devam eder ve yapay zekâ ekranları otomatik olarak demo yanıtları gösterir.
-
-Demo Giriş Bilgileri
-Alan	Değer
-Telefon numarası	Herhangi bir geçerli numara
-SMS doğrulama kodu	123456
-PIN	1234
-Güvenlik
-API anahtarı izolasyonu: LLM anahtarı yalnızca arka uç sunucusunda tutulur; mobil istemci anahtara doğrudan erişemez.
-Hız sınırlaması: Yapay zekâ endpoint'leri IP başına dakikada beş istekle sınırlandırılır.
-Güvenli yerel depolama: PIN ve kimlik doğrulama token'ları iOS Keychain veya Android Keystore üzerinden expo-secure-store ile saklanır.
-Veri minimizasyonu: Gerçek finansal veri toplanmaz, iletilmez veya depolanmaz.
-Yapay zekâ uyarısı: Üretilen yanıtlar yalnızca bilgilendirme ve demo amaçlıdır; yatırım tavsiyesi değildir.
+npm run android
+npm run ios
+npm run web
 Yol Haritası
+Aşama	Çıktı
+1. Temel altyapı	Expo, TypeScript, NativeWind, yönlendirme ve çoklu dil altyapısı
+2. Kimlik doğrulama	Dil seçimi, telefon, SMS doğrulaması ve PIN ekranları
+3. Cüzdan deneyimi	Ana ekran, bakiyeler, işlemler ve harcama simülatörü
+4. Sosyal finans ve analitik	Grup cüzdanları, hedefler, abonelikler ve finansal grafikler
+5. Yapay zekâ katmanı	Copilot, tahmin, anomali tespiti ve arka uç proxy servisi
+6. Kalite ve teslim	Testler, ekran görüntüleri, dokümantasyon ve son kontroller
 
-20 iş günlük MVP geliştirme kapsamı
+Ayrıntılı teknik plan için implementation_plan.md dosyasını inceleyin.
 
-Faz	Kapsam
-Faz 0 — Kurulum	Expo, NativeWind, dizin yapısı ve tema sistemi
-Faz 1 — Kimlik doğrulama ve yerelleştirme	RTL, telefon/OTP/PIN akışı ve dil seçimi
-Faz 2 — Cüzdan	Bakiye, işlemler, harcama modları ve simülatör
-Faz 3 — Sosyal Finans	Hedefler, grup cüzdanları ve abonelik dedektörü
-Faz 4 — Yapay zekâ	Copilot, finansal skor, arka uç servisi ve kartlar
-Faz 5 — Test ve teslim	Kalite kontrolleri, testler, dokümantasyon ve ekran görüntüleri
+Güvenlik ve Kapsam Sınırları
 
-Detaylı plan için docs/implementation_plan.md dosyasını inceleyebilirsiniz.
+NOVA Wallet bir demo prototipidir. Mevcut kapsam aşağıdaki yetenekleri içermez:
 
-Finansal Teknoloji Kapsamı
+Gerçek para transferi
+Banka hesabı veya ödeme hesabı oluşturma
+Gerçek kart çıkarma
+Gerçek SMS veya KYC doğrulaması
+Ödeme ağı ve banka entegrasyonu
+PCI-DSS, MASAK veya TCMB uyumluluk süreçleri
 
-Bu prototip aşağıdaki işlevleri içermez:
-
-Hesaplar arasında gerçek para transferi
-Fiziksel veya gerçek sanal kart çıkarımı
-Gerçek SMS teslimatı veya operatör düzeyinde telefon doğrulaması
-KYC kimlik doğrulaması
-Ödeme geçidi veya kart ağı entegrasyonu
-PCI-DSS uyumluluğu
-MASAK raporlama yükümlülükleri
-TCMB elektronik para kuruluşu lisansı
-
-Gerçek ödeme özelliklerinin kullanıma alınması, lisanslı bir banka veya elektronik para kuruluşuyla aktif ortaklık gerektirir.
+Üretim ortamına geçiş; yetkili bir banka veya elektronik para kuruluşuyla entegrasyon, kapsamlı güvenlik testleri ve ilgili yasal gerekliliklerin yerine getirilmesini gerektirir.
 
 Geliştirici
 
-<div align="center">
-
 Isam
+Yapay Zekâ Mühendisliği — Mobil Uygulama Geliştirme — Finansal Teknolojiler
 
-Yapay Zekâ Mühendisliği · Mobil Uygulama Geliştirme · FinTech
-
-
-
-
-Bu proje, 20 iş günlük staj geliştirme süreci kapsamında hazırlanmıştır.
-
-</div>
+GitHub: @isambais
 
 Lisans
 
-Bu proje MIT Lisansı kapsamında sunulmaktadır.
-
-<div align="center">
-
-<sub>NOVA Wallet · Daha bilinçli finansal kararlar için geliştirildi.</sub>
-
-</div>
+Bu proje MIT Lisansı kapsamında yayımlanmıştır.
