@@ -13,7 +13,8 @@ import {
   TrendingUp, TrendingDown, Bot, ChevronRight, Copy,
   ArrowLeftRight, SlidersHorizontal, Check, X,
   FileText, ArrowDownLeft, Upload, Gem, Target, Snowflake, Flag,
-  Heart, Users,
+  Heart, Users, BookOpen,
+  Bell, HelpCircle, LifeBuoy, MessageCircle, Tag, Shield,
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -77,8 +78,33 @@ const MORE_ACTIONS = [
 ];
 
 const MORE_SECONDARY = [
-  { id: 'bagis', Icon: Heart, label: 'Bağış Yap' },
-  { id: 'davet', Icon: Users, label: 'Arkadaşını Davet Et' },
+  { id: 'bagis', Icon: Heart,  label: 'Bağış Yap' },
+  { id: 'davet', Icon: Users,  label: 'Arkadaşını Davet Et' },
+];
+
+// ─── SOL MENÜ GRUPLARI ───────────────────────────────────────────
+type MenuItem = { id: string; Icon: any; label: string; sub: string; color: string; route: string };
+type MenuGroup = { items: MenuItem[] };
+
+const MENU_GROUPS: MenuGroup[] = [
+  {
+    items: [
+      { id: 'bildirim', Icon: Bell,          label: 'Bildirimler',               sub: 'Ayarlar ve tercihler',        color: '#3B82F6', route: '/screens/notifications' },
+      { id: 'kampanya', Icon: Tag,           label: 'Kampanyalar / Fırsatlar',   sub: 'Özel teklifler seni bekliyor', color: '#F97316', route: '/screens/campaigns'    },
+    ],
+  },
+  {
+    items: [
+      { id: 'iletisim', Icon: MessageCircle, label: 'Bize Ulaş / Canlı Destek', sub: 'Bağlan, hemen çözelim',      color: '#10B981', route: '/screens/contact'       },
+      { id: 'talimat',  Icon: BookOpen,      label: 'Talimatlar',                sub: 'Uygulama rehberi',            color: '#7C3AED', route: '/screens/instructions'  },
+    ],
+  },
+  {
+    items: [
+      { id: 'sss',      Icon: HelpCircle,    label: 'Sıkça Sorulan Sorular',     sub: 'Merak ettiklerin',            color: '#F59E0B', route: '/screens/faq'           },
+      { id: 'sozlesme', Icon: Shield,        label: 'Sözleşmeler & KVKK',        sub: 'Hukuki belgeler',             color: '#64748B', route: '/screens/agreements'    },
+    ],
+  },
 ];
 
 const EXCHANGE_RATES = [
@@ -95,6 +121,7 @@ export default function HomeScreen() {
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
   const [modeModalVisible, setModeModal]    = useState(false);
   const [moreModalVisible, setMoreModal]    = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const user              = useAuthStore((s) => s.user);
   const activeCurrency    = useAccountStore((s) => s.activeCurrency);
@@ -114,6 +141,9 @@ export default function HomeScreen() {
     if (id === 'modes') setModeModal(true);
     if (id === 'more')  setMoreModal(true);
   };
+
+  const openMenu  = () => setMenuOpen(true);
+  const closeMenu = () => setMenuOpen(false);
 
   const handleSelectMode = (mode: SpendingMode) => {
     if (activeMode?.id === mode.id) {
@@ -155,7 +185,7 @@ export default function HomeScreen() {
 
         {/* ── HEADER ── */}
         <View style={s.header}>
-          <TouchableOpacity style={s.iconBox}>
+          <TouchableOpacity style={s.iconBox} onPress={openMenu}>
             <Menu size={20} color={colors.text1} strokeWidth={1.8} />
           </TouchableOpacity>
           <Text style={s.logo}>NOVA <Text style={s.logoDot}>•</Text></Text>
@@ -391,7 +421,10 @@ export default function HomeScreen() {
             <View style={s.moreGrid}>
               {MORE_ACTIONS.map(({ id, Icon, label, color, destructive }) => (
                 <TouchableOpacity key={id} style={s.moreItem} activeOpacity={0.7}
-                  onPress={() => { if (id === 'sim') { setMoreModal(false); router.push('/screens/simulator'); } }}
+                  onPress={() => {
+                    if (id === 'sim')     { setMoreModal(false); router.push('/screens/simulator'); }
+                    if (id === 'birikim') { setMoreModal(false); router.push('/screens/goals'); }
+                  }}
                 >
                   <View style={[
                     s.moreIconBox,
@@ -427,6 +460,48 @@ export default function HomeScreen() {
 
           </Pressable>
         </Pressable>
+      </Modal>
+
+      {/* ── MENÜ BOTTOM SHEET ── */}
+      <Modal visible={menuOpen} transparent animationType="slide" onRequestClose={closeMenu}>
+        <Pressable style={s.menuOverlay} onPress={closeMenu} />
+        <View style={s.menuSheet}>
+          <View style={s.menuHandle} />
+          <Text style={s.menuTitle}>Menü</Text>
+
+          <View style={{ gap: 8 }}>
+            {MENU_GROUPS.map((group, gi) => (
+              <View key={gi} style={s.menuGroup}>
+                {group.items.map(({ id, Icon, label, sub, color, route }, i) => (
+                  <View key={id}>
+                    {i > 0 && <View style={s.menuDivider} />}
+                    <TouchableOpacity
+                      style={s.menuItem}
+                      activeOpacity={0.6}
+                      onPress={() => { closeMenu(); router.push(route as any); }}
+                    >
+                      <View style={[s.menuItemIcon, { backgroundColor: color + '22', borderColor: color + '44', shadowColor: color }]}>
+                        <Icon size={19} color={color} strokeWidth={1.8} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.menuItemText}>{label}</Text>
+                        <Text style={s.menuItemSub}>{sub}</Text>
+                      </View>
+                      <View style={s.menuChevron}>
+                        <ChevronRight size={14} color='rgba(255,255,255,0.3)' strokeWidth={2} />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+
+          {/* Vazgeç */}
+          <TouchableOpacity style={s.menuCancel} onPress={closeMenu} activeOpacity={0.7}>
+            <Text style={s.menuCancelText}>Vazgeç</Text>
+          </TouchableOpacity>
+        </View>
       </Modal>
 
     </SafeAreaView>
@@ -536,4 +611,21 @@ const s = StyleSheet.create({
   moreSecRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
   moreSecIconBox:   { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   moreSecLabel:     { flex: 1, color: colors.text2, fontSize: 14, fontWeight: '500' },
+
+  // ─── Menü bottom sheet ───
+  menuOverlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.72)' },
+  menuSheet:      { backgroundColor: '#0F0F18', borderTopLeftRadius: 36, borderTopRightRadius: 36, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 30, gap: 8 },
+  menuHandle:     { width: 32, height: 3, backgroundColor: 'rgba(255,255,255,0.13)', borderRadius: 99, alignSelf: 'center', marginBottom: 6 },
+  menuTitle:      { color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', paddingHorizontal: 4, marginBottom: 0 },
+
+  menuGroup:      { borderRadius: 18, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', backgroundColor: 'rgba(255,255,255,0.05)' },
+  menuItem:       { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 11 },
+  menuItemIcon:   { width: 38, height: 38, borderRadius: 11, backgroundColor: colors.purple + '22', borderWidth: 1, borderColor: colors.purple + '44', alignItems: 'center', justifyContent: 'center', shadowColor: colors.purple, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: 8 },
+  menuItemText:   { color: '#fff', fontSize: 14, fontWeight: '700' },
+  menuItemSub:    { color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: '500', marginTop: 1 },
+  menuChevron:    { width: 24, height: 24, borderRadius: 7, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' },
+
+  menuDivider:    { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginHorizontal: 16 },
+  menuCancel:     { borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)', backgroundColor: 'rgba(255,255,255,0.04)', paddingVertical: 17, alignItems: 'center', marginTop: 2 },
+  menuCancelText: { color: 'rgba(255,255,255,0.45)', fontSize: 15, fontWeight: '600' },
 });
