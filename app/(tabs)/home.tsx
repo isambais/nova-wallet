@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
   TouchableOpacity, Animated, Easing,
+  Modal, Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,7 +11,8 @@ import {
   Menu, Eye, EyeOff,
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
   TrendingUp, TrendingDown, Bot,
-  ChevronRight, Copy,
+  ChevronRight, Copy, UserRound, ArrowLeftRight,
+  Landmark, CreditCard, Settings, LogOut,
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
@@ -68,6 +70,15 @@ const TRANSACTIONS = [
   { id: '5', title: 'Elektrik Faturası',subtitle: 'Otomatik Ödeme',  amount: '-₺ 185,00',   date: '20 Haz',  type: 'out' },
 ];
 
+const PROFILE_ITEMS = [
+  { id: 'details', label: 'Hesap detayları', Icon: UserRound },
+  { id: 'transactions', label: 'Hesap hareketleri', Icon: ArrowLeftRight },
+  { id: 'banks', label: 'Banka hesapları', Icon: Landmark },
+  { id: 'cards', label: 'Banka / kredi kartları', Icon: CreditCard },
+  { id: 'settings', label: 'Ayarlar', Icon: Settings },
+  { id: 'logout', label: 'Çıkış', Icon: LogOut },
+] as const;
+
 // ─── ANA EKRAN ────────────────────────────────────────────────────
 export default function HomeScreen() {
   const router = useRouter();
@@ -75,8 +86,18 @@ export default function HomeScreen() {
   const [activeSegment, setActiveSegment]   = useState(0);
   const [activeTxFilter, setActiveTxFilter] = useState(0);
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
+  const [profileOpen, setProfileOpen]       = useState(false);
   const user    = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const logout  = useAuthStore((s) => s.logout);
+
+  const handleProfileItem = (id: typeof PROFILE_ITEMS[number]['id']) => {
+    if (id === 'logout') {
+      logout();
+      setProfileOpen(false);
+      router.replace('/');
+    }
+  };
 
   // Migration: eski kullanıcının iban'ı yoksa üret ve kaydet
   useEffect(() => {
@@ -145,7 +166,7 @@ export default function HomeScreen() {
           </Text>
           <TouchableOpacity
             style={s.avatarBox}
-            onPress={() => router.push('/profile' as never)}
+            onPress={() => setProfileOpen(true)}
             activeOpacity={0.7}
             hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
             accessibilityRole="button"
@@ -351,6 +372,41 @@ export default function HomeScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
+      <Modal visible={profileOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setProfileOpen(false)}>
+        <View style={s.profileModalRoot}>
+          <Pressable style={s.profileBackdrop} onPress={() => setProfileOpen(false)} />
+          <View style={s.profileSheet}>
+            <View style={s.profileHandle} />
+            <View style={s.profileHeader}>
+              <View style={s.profileAvatar}><Text style={s.profileAvatarText}>{(user?.name ?? 'N').charAt(0).toUpperCase()}</Text></View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.profileName}>{user?.name ?? 'NOVA Kullanıcısı'}</Text>
+                <Text style={s.profilePhone}>{user?.phone || 'Demo hesap'}</Text>
+              </View>
+            </View>
+
+            <View style={s.profileGroup}>
+              {PROFILE_ITEMS.map(({ id, label, Icon }, index) => (
+                <View key={id}>
+                  {index > 0 && <View style={s.profileDivider} />}
+                  <TouchableOpacity style={s.profileRow} activeOpacity={0.65} onPress={() => handleProfileItem(id)}>
+                    <View style={[s.profileIcon, id === 'logout' && s.profileLogoutIcon]}>
+                      <Icon size={19} color={id === 'logout' ? colors.error : colors.purpleLight} strokeWidth={1.8} />
+                    </View>
+                    <Text style={[s.profileLabel, id === 'logout' && s.profileLogoutLabel]}>{label}</Text>
+                    {id !== 'logout' && <ChevronRight size={16} color="rgba(255,255,255,0.3)" />}
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+
+            <TouchableOpacity style={s.profileCancel} onPress={() => setProfileOpen(false)} activeOpacity={0.7}>
+              <Text style={s.profileCancelText}>Vazgeç</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -432,4 +488,23 @@ const s = StyleSheet.create({
   // FAB
   fab:         { position: 'absolute', bottom: 24, right: 24, borderRadius: 30, elevation: 8, shadowColor: colors.purple, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12 },
   fabGradient: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
+
+  profileModalRoot: { flex: 1, justifyContent: 'flex-end' },
+  profileBackdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0,0,0,0.72)' },
+  profileSheet: { backgroundColor: '#0F0F18', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 28 },
+  profileHandle: { width: 36, height: 4, borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.15)', alignSelf: 'center', marginBottom: 16 },
+  profileHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 4, paddingBottom: 16 },
+  profileAvatar: { width: 46, height: 46, borderRadius: 15, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' },
+  profileAvatarText: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  profileName: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  profilePhone: { color: colors.text2, fontSize: 12, marginTop: 3 },
+  profileGroup: { borderRadius: 18, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, backgroundColor: 'rgba(255,255,255,0.04)' },
+  profileRow: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14 },
+  profileIcon: { width: 34, height: 34, borderRadius: 10, backgroundColor: 'rgba(124,58,237,0.15)', alignItems: 'center', justifyContent: 'center' },
+  profileLogoutIcon: { backgroundColor: 'rgba(244,63,94,0.12)' },
+  profileLabel: { flex: 1, color: '#fff', fontSize: 14, fontWeight: '600' },
+  profileLogoutLabel: { color: colors.error },
+  profileDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginLeft: 60 },
+  profileCancel: { marginTop: 10, paddingVertical: 16, borderRadius: 18, alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: 'rgba(255,255,255,0.04)' },
+  profileCancelText: { color: 'rgba(255,255,255,0.65)', fontSize: 15, fontWeight: '600' },
 });
