@@ -12,7 +12,7 @@ import {
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
   TrendingUp, TrendingDown, ChevronRight, Copy,
   ArrowLeftRight, SlidersHorizontal, Check, X,
-  FileText, Upload, Gem, Target, Snowflake, Flag,
+  FileText, Upload, Gem, Target, Flag, ScanLine,
   Heart, Users, BookOpen,
   Bell, HelpCircle, LifeBuoy, MessageCircle, Tag, Shield,
 } from 'lucide-react-native';
@@ -74,7 +74,7 @@ const MORE_ACTIONS = [
   { id: 'altin',   Icon: Gem,            label: 'Altın Al',       color: '#D97706', destructive: false },
   { id: 'yatirim', Icon: TrendingUp,     label: 'Yatırım',        color: '#3B82F6', destructive: false },
   { id: 'birikim', Icon: Flag,           label: 'Birikim Hedefi', color: '#8B5CF6', destructive: false },
-  { id: 'freeze',  Icon: Snowflake,      label: 'Kartı Dondur',   color: '#EF4444', destructive: true  },
+  { id: 'fis',     Icon: ScanLine,       label: 'Fiş Okuyucu',   color: '#10B981', destructive: false },
 ];
 
 const MORE_SECONDARY = [
@@ -83,26 +83,26 @@ const MORE_SECONDARY = [
 ];
 
 // ─── SOL MENÜ GRUPLARI ───────────────────────────────────────────
-type MenuItem = { id: string; Icon: any; label: string; sub: string; color: string; route: string };
+type MenuItem = { id: string; Icon: any; label: string; sub: string; color: string; route: '/screens/bildirim-merkezi' | null };
 type MenuGroup = { items: MenuItem[] };
 
 const MENU_GROUPS: MenuGroup[] = [
   {
     items: [
       { id: 'bildirim', Icon: Bell,          label: 'Bildirimler',               sub: 'Ödeme, analiz ve güvenlik bildirimleri', color: '#3B82F6', route: '/screens/bildirim-merkezi' },
-      { id: 'kampanya', Icon: Tag,           label: 'Kampanyalar / Fırsatlar',   sub: 'Özel teklifler seni bekliyor', color: '#F97316', route: '/screens/campaigns'    },
+      { id: 'kampanya', Icon: Tag,           label: 'Kampanyalar / Fırsatlar',   sub: 'Özel teklifler seni bekliyor', color: '#F97316', route: null },
     ],
   },
   {
     items: [
-      { id: 'iletisim', Icon: MessageCircle, label: 'Bize Ulaş / Canlı Destek', sub: 'Bağlan, hemen çözelim',      color: '#10B981', route: '/screens/contact'       },
-      { id: 'talimat',  Icon: BookOpen,      label: 'Talimatlar',                sub: 'Uygulama rehberi',            color: '#7C3AED', route: '/screens/instructions'  },
+      { id: 'iletisim', Icon: MessageCircle, label: 'Bize Ulaş / Canlı Destek', sub: 'Bağlan, hemen çözelim',      color: '#10B981', route: null },
+      { id: 'talimat',  Icon: BookOpen,      label: 'Talimatlar',                sub: 'Uygulama rehberi',            color: '#7C3AED', route: null },
     ],
   },
   {
     items: [
-      { id: 'sss',      Icon: HelpCircle,    label: 'Sıkça Sorulan Sorular',     sub: 'Merak ettiklerin',            color: '#F59E0B', route: '/screens/faq'           },
-      { id: 'sozlesme', Icon: Shield,        label: 'Sözleşmeler & KVKK',        sub: 'Hukuki belgeler',             color: '#64748B', route: '/screens/agreements'    },
+      { id: 'sss',      Icon: HelpCircle,    label: 'Sıkça Sorulan Sorular',     sub: 'Merak ettiklerin',            color: '#F59E0B', route: null },
+      { id: 'sozlesme', Icon: Shield,        label: 'Sözleşmeler & KVKK',        sub: 'Hukuki belgeler',             color: '#64748B', route: null },
     ],
   },
 ];
@@ -418,6 +418,7 @@ export default function HomeScreen() {
                     if (id === 'sim')     { setMoreModal(false); router.push('/screens/simulator'); }
                     if (id === 'birikim') { setMoreModal(false); router.push('/screens/goals'); }
                     if (id === 'grup')    { setMoreModal(false); router.push('/screens/group-wallet'); }
+                    if (id === 'fis')     { setMoreModal(false); router.push('/screens/fis-okuyucu' as any); }
                   }}
                 >
                   <View style={[
@@ -472,17 +473,20 @@ export default function HomeScreen() {
                     <TouchableOpacity
                       style={s.menuItem}
                       activeOpacity={0.6}
-                      onPress={() => { closeMenu(); router.push(route as any); }}
+                      disabled={!route}
+                      accessibilityRole="button"
+                      accessibilityState={{ disabled: !route }}
+                      onPress={() => { if (route) { closeMenu(); router.push(route); } }}
                     >
                       <View style={[s.menuItemIcon, { backgroundColor: color + '22', borderColor: color + '44', shadowColor: color }]}>
                         <Icon size={19} color={color} strokeWidth={1.8} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={s.menuItemText}>{label}</Text>
-                        <Text style={s.menuItemSub}>{sub}</Text>
+                        <Text style={s.menuItemSub}>{route ? sub : 'Yakında'}</Text>
                       </View>
                       <View style={s.menuChevron}>
-                        <ChevronRight size={14} color='rgba(255,255,255,0.3)' strokeWidth={2} />
+                        {route && <ChevronRight size={14} color='rgba(255,255,255,0.3)' strokeWidth={2} />}
                       </View>
                     </TouchableOpacity>
                   </View>
