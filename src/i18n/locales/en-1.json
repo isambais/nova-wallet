@@ -1,6 +1,6 @@
 {
   "welcome": "Welcome",
-  "login": "Log In",
+  "login": "Login",
   "balance": "Balance",
   "transactions": "Transactions",
   "settings": "Settings",
@@ -15,26 +15,16 @@
   },
 
   "auth": {
-    "welcome": {
-      "tagline": "Your secure digital wallet",
-      "login": "Log In",
-      "register": "Create Account",
-      "with_phone": "Continue with phone number",
-      "with_email": "Continue with email",
-      "with_google": "Continue with Google",
-      "or": "or",
-      "terms": "By continuing you agree to our Terms of Service and Privacy Policy."
-    },
     "phone": {
       "title": "Your Phone Number",
       "subtitle": "We'll send you a verification code",
       "placeholder": "XXX XXX XXXX",
       "prefix": "+1",
       "continue": "Continue",
-      "terms": "By continuing you agree to our Terms of Service and Privacy Policy."
+      "terms": "By continuing, you agree to our Terms of Service and Privacy Policy."
     },
     "otp": {
-      "title": "Enter Code",
+      "title": "Enter the Code",
       "subtitle": "Enter the 6-digit code sent to {{phone}}",
       "resend": "Resend Code",
       "resend_in": "Resend in {{seconds}} seconds",
@@ -42,11 +32,11 @@
       "verify": "Verify"
     },
     "pin": {
-      "title": "Create PIN",
+      "title": "Create Your PIN",
       "subtitle": "Set a 6-digit PIN to secure your account",
-      "confirm_title": "Confirm PIN",
-      "confirm_subtitle": "Re-enter your PIN for security",
-      "error_mismatch": "PINs don't match. Try again.",
+      "confirm_title": "Confirm Your PIN",
+      "confirm_subtitle": "Enter your PIN again for security",
+      "error_mismatch": "PINs don't match. Please try again.",
       "error_weak": "Choose a stronger PIN (avoid sequential numbers)",
       "success": "PIN created successfully!"
     }
@@ -106,8 +96,8 @@
 
   "errors": {
     "required": "This field is required",
-    "phone_invalid": "Enter a valid phone number",
-    "otp_invalid": "Invalid code. Try again.",
+    "phone_invalid": "Please enter a valid phone number",
+    "otp_invalid": "Invalid code. Please try again.",
     "network": "Connection error. Please try again.",
     "generic": "Something went wrong. Please try again."
   },
@@ -119,7 +109,7 @@
     "cancel": "Cancel",
     "save": "Save",
     "loading": "Loading...",
-    "retry": "Retry",
+    "retry": "Try Again",
     "close": "Close"
   }
 }

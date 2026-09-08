@@ -5,11 +5,28 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#6C63FF',
-        secondary: '#F5F5F5',
-        success: '#4CAF50',
-        danger: '#F44336',
-        warning: '#FF9800',
+        nova: {
+          bg: '#04080F',
+          surface: {
+            1: '#0A1020',
+            2: '#0F182B',
+            3: '#1A2540',
+          },
+          purple: {
+            DEFAULT: '#7C3AED',
+            dark: '#4C1D95',
+            light: '#A78BFA',
+            xl: '#C4B5FD',
+          },
+          text: {
+            1: '#FFFFFF',
+            2: '#7A8BA8',
+            3: '#2D3D58',
+          },
+          success: '#10B981',
+          error:   '#F43F5E',
+          warning: '#F59E0B',
+        },
       },
     },
   },

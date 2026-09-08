@@ -15,16 +15,6 @@
   },
 
   "auth": {
-    "welcome": {
-      "tagline": "Güvenli dijital cüzdanınız",
-      "login": "Giriş Yap",
-      "register": "Hesap Oluştur",
-      "with_phone": "Telefon numarası ile devam et",
-      "with_email": "E-posta ile devam et",
-      "with_google": "Google ile devam et",
-      "or": "veya",
-      "terms": "Devam ederek Kullanım Koşulları ve Gizlilik Politikasını kabul etmiş olursunuz."
-    },
     "phone": {
       "title": "Telefon Numaranız",
       "subtitle": "Size doğrulama kodu göndereceğiz",
