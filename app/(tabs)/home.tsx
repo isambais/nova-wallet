@@ -144,7 +144,15 @@ export default function HomeScreen() {
           <Text style={s.logo}>
             NOVA <Text style={s.logoDot}>•</Text>
           </Text>
-          <TouchableOpacity style={s.avatarBox} onPress={() => setProfileOpen(true)} accessibilityRole="button" accessibilityLabel="Profil menüsünü aç" accessibilityState={{ expanded: profileOpen }}>
+          <TouchableOpacity
+            style={s.avatarBox}
+            onPress={() => setProfileOpen(true)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="Profil menüsünü aç"
+            accessibilityState={{ expanded: profileOpen }}
+          >
             <Text style={s.avatarLetter}>
               {(user?.name ?? 'N').charAt(0).toUpperCase()}
             </Text>
@@ -345,7 +353,14 @@ export default function HomeScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
-      {profileOpen && <ProfileMenu onClose={() => setProfileOpen(false)} balanceVisible={balanceVisible} onBalanceVisibilityChange={setBalanceVisible} transactions={TRANSACTIONS} cards={<CardsScreen />} />}
+      <ProfileMenu
+        visible={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        balanceVisible={balanceVisible}
+        onBalanceVisibilityChange={setBalanceVisible}
+        transactions={TRANSACTIONS}
+        cards={<CardsScreen />}
+      />
     </SafeAreaView>
   );
 }

@@ -17,6 +17,7 @@ const ITEMS = [
 ] as const;
 
 type Props = {
+  visible: boolean;
   onClose: () => void;
   balanceVisible: boolean;
   onBalanceVisibilityChange: (visible: boolean) => void;
@@ -24,7 +25,7 @@ type Props = {
   cards: ReactNode;
 };
 
-export function ProfileMenu({ onClose, balanceVisible, onBalanceVisibilityChange, transactions, cards }: Props) {
+export function ProfileMenu({ visible, onClose, balanceVisible, onBalanceVisibilityChange, transactions, cards }: Props) {
   const [section, setSection] = useState<Section | null>(null);
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
@@ -38,7 +39,14 @@ export function ProfileMenu({ onClose, balanceVisible, onBalanceVisibilityChange
   }
 
   return (
-    <Modal transparent animationType="fade" onRequestClose={back} statusBarTranslucent>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={back}
+      statusBarTranslucent
+      hardwareAccelerated
+    >
       <View style={s.overlay}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel="Profil menüsünü kapat" />
         <SafeAreaView style={s.safe} pointerEvents="box-none">
