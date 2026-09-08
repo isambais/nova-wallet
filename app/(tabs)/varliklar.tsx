@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { PieChart } from 'react-native-gifted-charts';
-import { TrendingUp, TrendingDown, ChevronRight } from 'lucide-react-native';
+import { TrendingUp, TrendingDown, ChevronRight, BookOpen, Map, Calendar, BarChart2 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 
 // ─── MOCK DATA ────────────────────────────────────────────────────
@@ -14,61 +15,29 @@ const PIE_DATA = [
 ];
 
 const ASSETS = [
-  {
-    id: '1',
-    name: 'Hisse Senedi',
-    subtitle: 'Borsa İstanbul',
-    value: '₺ 4.980,00',
-    change: '+%3,20',
-    up: true,
-    pct: 40,
-    color: colors.purple,
-  },
-  {
-    id: '2',
-    name: 'Kripto Para',
-    subtitle: 'BTC · ETH · BNB',
-    value: '₺ 3.735,00',
-    change: '+%1,87',
-    up: true,
-    pct: 30,
-    color: colors.success,
-  },
-  {
-    id: '3',
-    name: 'Kıymetli Maden',
-    subtitle: 'Altın · Gümüş',
-    value: '₺ 2.490,00',
-    change: '-0,44%',
-    up: false,
-    pct: 20,
-    color: colors.warning,
-  },
-  {
-    id: '4',
-    name: 'Nakit',
-    subtitle: 'TRY · USD · EUR',
-    value: '₺ 1.245,00',
-    change: '+%0,00',
-    up: true,
-    pct: 10,
-    color: colors.text3,
-  },
+  { id: '1', name: 'Hisse Senedi',    subtitle: 'Borsa İstanbul',  value: '₺ 4.980,00', change: '+%3,20', up: true,  pct: 40, color: colors.purple  },
+  { id: '2', name: 'Kripto Para',     subtitle: 'BTC · ETH · BNB', value: '₺ 3.735,00', change: '+%1,87', up: true,  pct: 30, color: colors.success },
+  { id: '3', name: 'Kıymetli Maden', subtitle: 'Altın · Gümüş',   value: '₺ 2.490,00', change: '-0,44%', up: false, pct: 20, color: colors.warning },
+  { id: '4', name: 'Nakit',          subtitle: 'TRY · USD · EUR',  value: '₺ 1.245,00', change: '+%0,00', up: true,  pct: 10, color: colors.text3   },
 ];
 
 const TOTAL = '₺ 12.450,00';
 
+const ANALYSIS_ITEMS = [
+  { id: 'hikaye',      label: 'Harcama Hikayesi',    sub: 'Aylık özet · story format',         Icon: BookOpen,  color: '#6366F1', route: '/screens/harcama-hikayesi' },
+  { id: 'harita',      label: 'Para Haritası',        sub: 'Kategorilere göre görsel harita',    Icon: Map,       color: '#10B981', route: '/screens/para-haritasi'    },
+  { id: 'takvim',      label: 'Para Akışı Takvimi',  sub: 'Günlük harcama & abonelik günleri', Icon: Calendar,  color: '#F59E0B', route: '/screens/takvim'            },
+  { id: 'karsilastir', label: 'Harcama Karşılaştır', sub: 'Yaş grubu ortalamalarıyla kıyas',   Icon: BarChart2, color: '#EC4899', route: '/screens/karsilastirma'     },
+];
+
 // ─── EKRAN ────────────────────────────────────────────────────────
 export default function VarliklarScreen() {
+  const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
-      <ScrollView
-        style={s.scroll}
-        contentContainerStyle={s.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
         {/* ── BAŞLIK ── */}
         <View style={s.header}>
@@ -96,9 +65,7 @@ export default function VarliklarScreen() {
               centerLabelComponent={() => (
                 <View style={{ alignItems: 'center' }}>
                   <Text style={{ color: colors.text2, fontSize: 10 }}>Toplam</Text>
-                  <Text style={{ color: colors.text1, fontSize: 13, fontWeight: '700' }}>
-                    ₺ 12.450
-                  </Text>
+                  <Text style={{ color: colors.text1, fontSize: 13, fontWeight: '700' }}>₺ 12.450</Text>
                 </View>
               )}
             />
@@ -131,37 +98,53 @@ export default function VarliklarScreen() {
               onPress={() => setSelected(selected === a.id ? null : a.id)}
               activeOpacity={0.75}
             >
-              {/* Renk çubuğu */}
               <View style={[s.assetBar, { backgroundColor: a.color }]} />
-
-              {/* Bilgi */}
               <View style={s.assetInfo}>
                 <Text style={s.assetName}>{a.name}</Text>
                 <Text style={s.assetSub}>{a.subtitle}</Text>
               </View>
-
-              {/* Sağ */}
               <View style={s.assetRight}>
                 <Text style={s.assetValue}>{a.value}</Text>
-                <View style={[
-                  s.changeBadge,
-                  { backgroundColor: a.up ? colors.success + '22' : colors.error + '22' }
-                ]}>
+                <View style={[s.changeBadge, { backgroundColor: a.up ? colors.success + '22' : colors.error + '22' }]}>
                   {a.up
                     ? <TrendingUp size={10} color={colors.success} />
                     : <TrendingDown size={10} color={colors.error} />
                   }
-                  <Text style={[s.changeBadgeText, { color: a.up ? colors.success : colors.error }]}>
-                    {a.change}
-                  </Text>
+                  <Text style={[s.changeBadgeText, { color: a.up ? colors.success : colors.error }]}>{a.change}</Text>
                 </View>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
-        <View style={{ height: 32 }} />
+        {/* ── ANALİZ ── */}
+        <View style={[s.sectionRow, { marginTop: 24 }]}>
+          <Text style={s.cardTitle}>Analiz</Text>
+        </View>
 
+        <View style={s.analysisCard}>
+          {ANALYSIS_ITEMS.map((item, i) => (
+            <View key={item.id}>
+              {i > 0 && <View style={s.divider} />}
+              <TouchableOpacity
+                style={s.analysisRow}
+                onPress={() => router.push(item.route as any)}
+                activeOpacity={0.7}
+              >
+                <View style={[s.analysisIcon, { backgroundColor: item.color + '18', borderColor: item.color + '33' }]}>
+                  <item.Icon size={20} color={item.color} strokeWidth={1.8} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.analysisLabel}>{item.label}</Text>
+                  <Text style={s.analysisSub}>{item.sub}</Text>
+                </View>
+                <ChevronRight size={16} color={colors.text3} strokeWidth={2} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+
+        <View style={{ height: 32 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -173,32 +156,27 @@ const s = StyleSheet.create({
   scroll:  { flex: 1 },
   content: { paddingHorizontal: 20 },
 
-  // Header
   header:   { paddingTop: 8, paddingBottom: 4 },
   title:    { color: colors.text1, fontSize: 22, fontWeight: '800' },
   subtitle: { color: colors.text2, fontSize: 13, marginTop: 2 },
 
-  // Toplam
   total:      { color: colors.text1, fontSize: 34, fontWeight: '800', marginTop: 12, letterSpacing: 0.5 },
   changeRow:  { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4, marginBottom: 24 },
   changeText: { color: colors.success, fontSize: 13, fontWeight: '500' },
 
-  // Pie
-  pieCard:  { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 20, marginBottom: 24 },
-  pieRow:   { flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 16 },
-  pieLegend:{ flex: 1, gap: 10 },
-  legendRow:{ flexDirection: 'row', alignItems: 'center', gap: 8 },
-  legendDot:{ width: 10, height: 10, borderRadius: 5 },
+  pieCard:   { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 20, marginBottom: 24 },
+  pieRow:    { flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 16 },
+  pieLegend: { flex: 1, gap: 10 },
+  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  legendDot: { width: 10, height: 10, borderRadius: 5 },
   legendLabel:{ flex: 1, color: colors.text2, fontSize: 12 },
   legendValue:{ color: colors.text1, fontSize: 12, fontWeight: '600' },
 
-  // Section
-  sectionRow:{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  cardTitle: { color: colors.text1, fontSize: 16, fontWeight: '700' },
-  seeAll:    { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  seeAllText:{ color: colors.purpleLight, fontSize: 13, fontWeight: '500' },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  cardTitle:  { color: colors.text1, fontSize: 16, fontWeight: '700' },
+  seeAll:     { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  seeAllText: { color: colors.purpleLight, fontSize: 13, fontWeight: '500' },
 
-  // Asset list
   assetCard:      { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
   assetRow:       { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
   assetRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
@@ -210,4 +188,11 @@ const s = StyleSheet.create({
   assetValue:     { color: colors.text1, fontSize: 14, fontWeight: '700' },
   changeBadge:    { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 8 },
   changeBadgeText:{ fontSize: 11, fontWeight: '600' },
+
+  analysisCard: { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  divider:      { height: 1, backgroundColor: colors.border, marginHorizontal: 16 },
+  analysisRow:  { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
+  analysisIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  analysisLabel:{ color: colors.text1, fontSize: 14, fontWeight: '700' },
+  analysisSub:  { color: colors.text3, fontSize: 12, marginTop: 1 },
 });

@@ -89,7 +89,7 @@ type MenuGroup = { items: MenuItem[] };
 const MENU_GROUPS: MenuGroup[] = [
   {
     items: [
-      { id: 'bildirim', Icon: Bell,          label: 'Bildirimler',               sub: 'Ayarlar ve tercihler',        color: '#3B82F6', route: '/screens/notifications' },
+      { id: 'bildirim', Icon: Bell,          label: 'Bildirimler',               sub: 'Ödeme, analiz ve güvenlik bildirimleri', color: '#3B82F6', route: '/screens/bildirim-merkezi' },
       { id: 'kampanya', Icon: Tag,           label: 'Kampanyalar / Fırsatlar',   sub: 'Özel teklifler seni bekliyor', color: '#F97316', route: '/screens/campaigns'    },
     ],
   },
