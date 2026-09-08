@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { PieChart } from 'react-native-gifted-charts';
-import { TrendingUp, TrendingDown, ChevronRight, BookOpen, Map, Calendar, BarChart2 } from 'lucide-react-native';
+import { TrendingUp, TrendingDown, ChevronRight, BookOpen, Map, Calendar, BarChart2, Activity, Target } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 
 // ─── MOCK DATA ────────────────────────────────────────────────────
@@ -27,7 +27,9 @@ const ANALYSIS_ITEMS = [
   { id: 'hikaye',      label: 'Harcama Hikayesi',    sub: 'Aylık özet · story format',         Icon: BookOpen,  color: '#6366F1', route: '/screens/harcama-hikayesi' },
   { id: 'harita',      label: 'Para Haritası',        sub: 'Kategorilere göre görsel harita',    Icon: Map,       color: '#10B981', route: '/screens/para-haritasi'    },
   { id: 'takvim',      label: 'Para Akışı Takvimi',  sub: 'Günlük harcama & abonelik günleri', Icon: Calendar,  color: '#F59E0B', route: '/screens/takvim'            },
-  { id: 'karsilastir', label: 'Harcama Karşılaştır', sub: 'Yaş grubu ortalamalarıyla kıyas',   Icon: BarChart2, color: '#EC4899', route: '/screens/karsilastirma'     },
+  { id: 'karsilastir', label: 'Harcama Karşılaştır',  sub: 'Yaş grubu ortalamalarıyla kıyas',    Icon: BarChart2, color: '#EC4899', route: '/screens/karsilastirma'      },
+  { id: 'saglik',      label: 'Finansal Sağlık Skoru', sub: 'AI destekli risk analizi · 5 kriter', Icon: Activity,  color: '#10B981', route: '/screens/saglik-skoru'       },
+  { id: 'hedef',       label: 'AI Hedef Planlayıcı',   sub: 'Tasarruf hedefleri & zaman çizelgesi', Icon: Target,   color: '#7C3AED', route: '/screens/hedef-planlayici'   },
 ];
 
 // ─── EKRAN ────────────────────────────────────────────────────────
