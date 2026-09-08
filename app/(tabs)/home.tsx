@@ -13,6 +13,8 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
+import { ProfileMenu } from '../../src/components/navigation/ProfileMenu';
+import CardsScreen from './cards';
 
 // ─── MOCK DATA ────────────────────────────────────────────────────
 const SEGMENTS = ['Hesabım', 'Yatırım', 'Kıymetli Maden', 'Birikim'];
@@ -74,6 +76,7 @@ export default function HomeScreen() {
   const [activeTxFilter, setActiveTxFilter] = useState(0);
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
   const user    = useAuthStore((s) => s.user);
+  const [profileOpen, setProfileOpen] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
 
   // Migration: eski kullanıcının iban'ı yoksa üret ve kaydet
@@ -141,11 +144,11 @@ export default function HomeScreen() {
           <Text style={s.logo}>
             NOVA <Text style={s.logoDot}>•</Text>
           </Text>
-          <View style={s.avatarBox}>
+          <TouchableOpacity style={s.avatarBox} onPress={() => setProfileOpen(true)} accessibilityRole="button" accessibilityLabel="Profil menüsünü aç" accessibilityState={{ expanded: profileOpen }}>
             <Text style={s.avatarLetter}>
               {(user?.name ?? 'N').charAt(0).toUpperCase()}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* ── SEGMENT TABS ── */}
@@ -342,6 +345,7 @@ export default function HomeScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
+      {profileOpen && <ProfileMenu onClose={() => setProfileOpen(false)} balanceVisible={balanceVisible} onBalanceVisibilityChange={setBalanceVisible} transactions={TRANSACTIONS} cards={<CardsScreen />} />}
     </SafeAreaView>
   );
 }
