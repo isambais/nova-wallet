@@ -12,7 +12,7 @@ import {
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
   TrendingUp, TrendingDown, Bot, ChevronRight, Copy,
   ArrowLeftRight, SlidersHorizontal, Check, X,
-  FileText, ArrowDownLeft, Upload, Gem, Target, Snowflake, Flag,
+  FileText, Upload, Gem, Target, Snowflake, Flag,
   Heart, Users, BookOpen,
   Bell, HelpCircle, LifeBuoy, MessageCircle, Tag, Shield,
 } from 'lucide-react-native';
@@ -68,7 +68,7 @@ const QUICK_ACTIONS = [
 // ─── DAHA FAZLA EKLENTİLERİ ────────────────────────────────────────
 const MORE_ACTIONS = [
   { id: 'fatura',  Icon: FileText,       label: 'Fatura Öde',     color: '#7C3AED', destructive: false },
-  { id: 'iste',    Icon: ArrowDownLeft,  label: 'Para İste',      color: '#10B981', destructive: false },
+  { id: 'grup',    Icon: Users,          label: 'Grup Cüzdanı',   color: '#06B6D4', destructive: false },
   { id: 'yukle',   Icon: Upload,         label: 'Yükle',          color: '#F59E0B', destructive: false },
   { id: 'sim',     Icon: Target,         label: 'Simülatör',      color: '#F97316', destructive: false },
   { id: 'altin',   Icon: Gem,            label: 'Altın Al',       color: '#D97706', destructive: false },
@@ -424,6 +424,7 @@ export default function HomeScreen() {
                   onPress={() => {
                     if (id === 'sim')     { setMoreModal(false); router.push('/screens/simulator'); }
                     if (id === 'birikim') { setMoreModal(false); router.push('/screens/goals'); }
+                    if (id === 'grup')    { setMoreModal(false); router.push('/screens/group-wallet'); }
                   }}
                 >
                   <View style={[
