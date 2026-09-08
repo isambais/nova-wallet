@@ -68,7 +68,6 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 8,
-    elevation: 4,
   },
 
   digit:  { color: A.digit, fontSize: 23, fontWeight: '700' },
