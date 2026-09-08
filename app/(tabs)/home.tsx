@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import {
   Menu, Eye, EyeOff,
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
@@ -13,8 +14,6 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
 import { useAuthStore, generateMockIban } from '../../src/store/useAuthStore';
-import { ProfileMenu } from '../../src/components/navigation/ProfileMenu';
-import CardsScreen from './cards';
 
 // ─── MOCK DATA ────────────────────────────────────────────────────
 const SEGMENTS = ['Hesabım', 'Yatırım', 'Kıymetli Maden', 'Birikim'];
@@ -71,12 +70,12 @@ const TRANSACTIONS = [
 
 // ─── ANA EKRAN ────────────────────────────────────────────────────
 export default function HomeScreen() {
+  const router = useRouter();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [activeSegment, setActiveSegment]   = useState(0);
   const [activeTxFilter, setActiveTxFilter] = useState(0);
   const [tabLayouts, setTabLayouts]         = useState<{ x: number; width: number }[]>([]);
   const user    = useAuthStore((s) => s.user);
-  const [profileOpen, setProfileOpen] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
 
   // Migration: eski kullanıcının iban'ı yoksa üret ve kaydet
@@ -146,12 +145,11 @@ export default function HomeScreen() {
           </Text>
           <TouchableOpacity
             style={s.avatarBox}
-            onPress={() => setProfileOpen(true)}
+            onPress={() => router.push('/profile' as never)}
             activeOpacity={0.7}
             hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
             accessibilityRole="button"
             accessibilityLabel="Profil menüsünü aç"
-            accessibilityState={{ expanded: profileOpen }}
           >
             <Text style={s.avatarLetter}>
               {(user?.name ?? 'N').charAt(0).toUpperCase()}
@@ -353,14 +351,6 @@ export default function HomeScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
-      <ProfileMenu
-        visible={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        balanceVisible={balanceVisible}
-        onBalanceVisibilityChange={setBalanceVisible}
-        transactions={TRANSACTIONS}
-        cards={<CardsScreen />}
-      />
     </SafeAreaView>
   );
 }
