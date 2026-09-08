@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import {
   Menu, Eye, EyeOff,
   ArrowUp, ArrowDown, RefreshCcw, LayoutGrid,
-  TrendingUp, TrendingDown, Bot, ChevronRight, Copy,
+  TrendingUp, TrendingDown, ChevronRight, Copy,
   ArrowLeftRight, SlidersHorizontal, Check, X,
   FileText, Upload, Gem, Target, Snowflake, Flag,
   Heart, Users, BookOpen,
@@ -348,13 +348,6 @@ export default function HomeScreen() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* ── FLOATING AI BUTTON ── */}
-      <TouchableOpacity style={s.fab}>
-        <LinearGradient colors={['#7C3AED', '#A855F7']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.fabGradient}>
-          <Bot size={24} color="#fff" strokeWidth={1.8} />
-        </LinearGradient>
-      </TouchableOpacity>
-
       {/* ── MOD SEÇİM MODALI ── */}
       <Modal visible={modeModalVisible} transparent animationType="slide" onRequestClose={() => setModeModal(false)}>
         <Pressable style={s.modalOverlay} onPress={() => setModeModal(false)}>
@@ -574,9 +567,6 @@ const s = StyleSheet.create({
   txCard:      { backgroundColor: colors.surface1, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
   txEmpty:     { padding: 24, alignItems: 'center' },
   txEmptyText: { color: colors.text3, fontSize: 14 },
-
-  fab:         { position: 'absolute', bottom: 24, right: 24, borderRadius: 30, elevation: 8, shadowColor: colors.purple, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12 },
-  fabGradient: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
 
   // ─── Ortak modal ───
   modalOverlay:  { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
